@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getSettings } from "@/api/api";
+import { getSettings, getTournaments } from "@/api/api";
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [recentTournaments, setRecentTournaments] = useState<any[]>([]);
+  const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
