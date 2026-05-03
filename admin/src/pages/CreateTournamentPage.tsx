@@ -1,14 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { createTournament } from "@/api/api";
 
-export const Route = createFileRoute("/create-tournament")({
-  component: CreateTournamentPage,
-});
-
-function CreateTournamentPage() {
+export default function CreateTournamentPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,6 +15,8 @@ function CreateTournamentPage() {
     prizePool: 0,
     runnerUpPrize: 0,
     entryFee: 0,
+    startDate: "",
+    startTime: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,7 +25,7 @@ function CreateTournamentPage() {
     setLoading(true);
     try {
       await createTournament(formData);
-      navigate({ to: "/tournaments" });
+      navigate("/tournaments");
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to create tournament");
     } finally {
@@ -45,7 +43,7 @@ function CreateTournamentPage() {
             <nav className="flex items-center gap-2 text-xs text-slate-500 font-space uppercase tracking-widest mb-2">
               <span>Admin</span>
               <span className="material-symbols-outlined text-[12px]">chevron_right</span>
-              <span className="cursor-pointer hover:text-sky-400" onClick={() => navigate({ to: "/tournaments" })}>Tournaments</span>
+              <span className="cursor-pointer hover:text-sky-400" onClick={() => navigate("/tournaments")}>Tournaments</span>
               <span className="material-symbols-outlined text-[12px]">chevron_right</span>
               <span className="text-sky-400">Create</span>
             </nav>
@@ -124,7 +122,7 @@ function CreateTournamentPage() {
                   type="date"
                   required
                   className="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-white focus:border-sky-400 outline-none transition-colors [color-scheme:dark]"
-                  value={(formData as any).startDate || ''}
+                  value={formData.startDate}
                   onChange={(e) => setFormData({...formData, startDate: e.target.value})}
                 />
               </div>
@@ -135,7 +133,7 @@ function CreateTournamentPage() {
                   type="time"
                   required
                   className="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-white focus:border-sky-400 outline-none transition-colors [color-scheme:dark]"
-                  value={(formData as any).startTime || ''}
+                  value={formData.startTime}
                   onChange={(e) => setFormData({...formData, startTime: e.target.value})}
                 />
               </div>

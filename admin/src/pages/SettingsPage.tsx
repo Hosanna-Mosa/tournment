@@ -1,15 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { useEffect, useState } from "react";
 import { getAdminReviews, createReview, updateReview, deleteReview, getSettings, updateSettings } from "@/api/api";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/settings")({
-  component: SettingsPage,
-});
-
-function SettingsPage() {
+export default function SettingsPage() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);

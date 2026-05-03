@@ -1,16 +1,12 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { getTournamentById, getTeams, updateTeamStatus, updateTournament, generateBracket, updatePayoutStatus } from "@/api/api";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/tournament-detail/$tournamentId")({
-  component: TournamentDetailPage,
-});
-
-function TournamentDetailPage() {
-  const { tournamentId } = useParams({ from: "/tournament-detail/$tournamentId" });
+export default function TournamentDetailPage() {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
   const [tournament, setTournament] = useState<any>(null);
   const [teams, setTeams] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
@@ -24,6 +20,7 @@ function TournamentDetailPage() {
   const [isProcessingRunnerUp, setIsProcessingRunnerUp] = useState(false);
 
   const fetchData = async () => {
+    if (!tournamentId) return;
     setLoading(true);
     setErrorMsg("");
     try {
@@ -47,6 +44,7 @@ function TournamentDetailPage() {
   };
 
   const handlePayoutStatusUpdate = async (type: 'winner' | 'runnerUp', status: string, ref: string) => {
+    if (!tournamentId) return;
     try {
       if (type === 'winner') setIsProcessingWinner(true);
       else setIsProcessingRunnerUp(true);
@@ -67,6 +65,7 @@ function TournamentDetailPage() {
   }, [tournamentId]);
 
   const handleUpdateTournament = async () => {
+    if (!tournamentId) return;
     try {
       await updateTournament(tournamentId, editData);
       setShowEditModal(false);
@@ -98,6 +97,7 @@ function TournamentDetailPage() {
   const totalBatches = Math.floor(approvedTeams.length / 8);
 
   const handleStartTournament = async () => {
+    if (!tournamentId) return;
     try {
       // 1. Generate the unified bracket for all approved teams
       await generateBracket(tournamentId);

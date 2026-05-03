@@ -1,12 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 
-export const Route = createFileRoute("/hall-of-fame")({
-  component: HallOfFamePage,
-});
-
-function HallOfFamePage() {
+export default function HallOfFamePage() {
   return (
     <div className="flex">
       <Sidebar />

@@ -1,22 +1,19 @@
-import { createFileRoute, useParams, useNavigate } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { getTeamById, updateTeamStatus } from "@/api/api";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/verify-team/$teamId")({
-  component: TeamVerificationPage,
-});
-
-function TeamVerificationPage() {
-  const { teamId } = useParams({ from: "/verify-team/$teamId" });
+export default function TeamVerificationPage() {
+  const { teamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
   const [team, setTeam] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   const fetchTeam = async () => {
+    if (!teamId) return;
     setLoading(true);
     try {
       const { data } = await getTeamById(teamId);
@@ -33,11 +30,12 @@ function TeamVerificationPage() {
   }, [teamId]);
 
   const handleVerify = async (status: string) => {
+    if (!teamId) return;
     setSubmitting(true);
     try {
       await updateTeamStatus(teamId, { status });
       toast.success(`Team ${status === 'APPROVED' ? 'Approved' : 'Reset'} successfully`);
-      navigate({ to: `/tournament-detail/${team.tournamentId}` });
+      navigate(`/tournament-detail/${team.tournamentId}`);
     } catch (error) {
       toast.error("Action failed");
     } finally {
@@ -146,7 +144,7 @@ function TeamVerificationPage() {
               </div>
               
               <button 
-                onClick={() => navigate({ to: `/tournament-detail/${team.tournamentId}` })}
+                onClick={() => navigate(`/tournament-detail/${team.tournamentId}`)}
                 className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-400 rounded-xl text-xs font-bold uppercase tracking-widest transition-all"
               >
                 Cancel & Return

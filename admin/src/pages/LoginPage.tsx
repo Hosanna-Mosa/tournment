@@ -1,12 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { login } from "@/api/api";
 
-export const Route = createFileRoute("/")({
-  component: LoginPage,
-});
-
-function LoginPage() {
+export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("admin@mhgaming.com");
   const [password, setPassword] = useState("password123");
@@ -19,7 +15,7 @@ function LoginPage() {
       const { data } = await login({ email, password });
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data));
-      navigate({ to: "/dashboard" });
+      navigate("/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.message || "Login failed");
     }
