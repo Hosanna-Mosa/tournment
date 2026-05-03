@@ -4,18 +4,24 @@ import { getSettings } from "@/api/api";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [settings, setSettings] = useState<any>(null);
+  const [recentTournaments, setRecentTournaments] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchSettings = async () => {
+    const fetchData = async () => {
       try {
-        const { data } = await getSettings();
-        setSettings(data);
+        const [sRes, tRes] = await Promise.all([
+          getSettings(),
+          getTournaments()
+        ]);
+        setSettings(sRes.data);
+        // Filter for completed tournaments
+        const completed = tRes.data.filter((t: any) => t.status === 'COMPLETED').slice(0, 3);
+        setRecentTournaments(completed);
       } catch (error) {
-        console.error("Failed to fetch settings:", error);
+        console.error("Failed to fetch data:", error);
       }
     };
-    fetchSettings();
+    fetchData();
   }, []);
 
   const features = [
@@ -84,6 +90,52 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {recentTournaments.length > 0 && (
+        <section className="py-16 md:py-24 px-4 md:px-6 bg-[#020617] border-y border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6 text-center md:text-left">
+              <div>
+                <h2 className="font-h2 text-white text-2xl md:text-4xl uppercase tracking-widest mb-2">RECENT HALL OF FAME</h2>
+                <p className="text-on-surface-variant text-sm md:text-base">Witness the legends who conquered the arena.</p>
+              </div>
+              <button 
+                onClick={() => navigate("/tournaments")}
+                className="text-primary-container uppercase font-h2 tracking-widest hover:underline flex items-center gap-2"
+              >
+                View All Results <span className="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+              {recentTournaments.map((tournament) => (
+                <div 
+                  key={tournament._id}
+                  onClick={() => navigate(`/tournament/${tournament._id}`)}
+                  className="glass-card rounded-2xl p-6 border border-white/5 hover:border-primary-container/30 transition-all cursor-pointer group"
+                >
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                      <span className="material-symbols-outlined">emoji_events</span>
+                    </div>
+                    <div>
+                      <h3 className="text-white font-bold uppercase tracking-wider text-sm truncate w-[180px]">{tournament.title}</h3>
+                      <p className="text-primary-container text-[10px] font-bold tracking-widest">{tournament.type}</p>
+                    </div>
+                  </div>
+                  <div className="bg-white/5 rounded-xl p-4 mb-4">
+                    <p className="text-outline uppercase text-[9px] tracking-widest mb-1">Champion</p>
+                    <p className="text-white font-h2 text-lg uppercase tracking-wider truncate">{tournament.winnerName || 'UNDECLARED'}</p>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">
+                    <span>Prize Won</span>
+                    <span className="text-primary">₹{tournament.prizePool.toLocaleString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
 
       <section className="py-16 md:py-24 px-4 md:px-6 bg-surface-container-low">

@@ -8,7 +8,7 @@ const shuffleTeams = require('./shuffleTeams');
  * @param {string} tournamentId 
  * @param {Array} teams 
  */
-const generateAutoBracket = async (tournamentId, teams) => {
+const generateAutoBracket = async (tournamentId, teams, customTitle) => {
   const batchSize = teams.length;
   if (batchSize < 2) return null; // Need at least 2 teams for a match
 
@@ -16,18 +16,19 @@ const generateAutoBracket = async (tournamentId, teams) => {
   const numByes = batchSize % 2;
   const totalRounds = Math.ceil(Math.log2(batchSize));
 
-  // 1. Determine Batch SN
+  // 1. Determine Title
   const bracketCount = await Bracket.countDocuments({ tournamentId });
-  const batchSN = `SN-${String(bracketCount + 1).padStart(2, '0')}`;
+  const title = customTitle || `SN-${String(bracketCount + 1).padStart(2, '0')}`;
 
   // 2. Create Bracket
   const bracket = new Bracket({
     tournamentId,
+    title,
     size: batchSize,
     totalRounds,
     status: 'ongoing',
     currentRound: 1,
-    batchSN
+    batchSN: title // Use title as batch identifier for the bracket record
   });
   const savedBracket = await bracket.save();
 
@@ -53,8 +54,8 @@ const generateAutoBracket = async (tournamentId, teams) => {
     const savedMatch = await match.save();
     matches.push(savedMatch);
 
-    await Team.findByIdAndUpdate(teamA._id, { isBracketted: true, bracketId: savedBracket._id, batchSN });
-    await Team.findByIdAndUpdate(teamB._id, { isBracketted: true, bracketId: savedBracket._id, batchSN });
+    await Team.findByIdAndUpdate(teamA._id, { isBracketted: true, bracketId: savedBracket._id });
+    await Team.findByIdAndUpdate(teamB._id, { isBracketted: true, bracketId: savedBracket._id });
   }
 
   // Team that gets a BYE (if any)
@@ -63,7 +64,6 @@ const generateAutoBracket = async (tournamentId, teams) => {
     await Team.findByIdAndUpdate(team._id, { 
       isBracketted: true, 
       bracketId: savedBracket._id, 
-      batchSN,
       isBye: true 
     });
   }

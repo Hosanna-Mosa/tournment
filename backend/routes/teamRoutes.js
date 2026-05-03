@@ -5,6 +5,8 @@ const {
   updateTeamStatus,
   getMyTeam,
   updateMyTeam,
+  updateRefundUPI,
+  updateRefundUTR,
 } = require('../controllers/teamController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -46,5 +48,7 @@ router.get('/detail/:teamId', protect, admin, async (req, res) => {
   }
 });
 router.patch('/:teamId/status', protect, admin, updateTeamStatus);
+router.patch('/my/refund-upi/:tournamentId', protect, updateRefundUPI);
+router.patch('/:teamId/refund-utr', protect, admin, updateRefundUTR);
 
 module.exports = router;

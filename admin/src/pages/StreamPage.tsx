@@ -1,12 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 
-export const Route = createFileRoute("/stream")({
-  component: StreamViewPage,
-});
-
-function StreamViewPage() {
+export default function StreamViewPage() {
   return (
     <div className="flex">
       <Sidebar />

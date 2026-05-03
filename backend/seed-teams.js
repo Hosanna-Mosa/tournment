@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const tournamentId = '69f701797eefc25b86a34ee7';
+const tournamentId = '69f7900a095ea8c0064943f8';
 
 const seedTeams = async () => {
   try {
@@ -34,7 +34,7 @@ const seedTeams = async () => {
     console.log(`Seeding 16 more teams for tournament: ${tournament.title}`);
 
     const createdTeams = [];
-    for (let i = 1; i <= 32; i++) {
+    for (let i = 1; i <= 8; i++) {
       const team = new Team({
         tournamentId: tournament._id,
         teamName: `Pro Team ${i}`,
@@ -57,7 +57,7 @@ const seedTeams = async () => {
     console.log(`Successfully seeded 16 more teams! Total should be 48.`);
     
     // Update filled slots
-    tournament.filledSlots = 48;
+    tournament.filledSlots = 8;
     await tournament.save();
 
     console.log('Ready to generate the 48-team bracket in the Admin Panel!');

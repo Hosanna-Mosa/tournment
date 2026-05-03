@@ -1,12 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 
-export const Route = createFileRoute("/moderators")({
-  component: ModeratorsPage,
-});
-
-function ModeratorsPage() {
+export default function ModeratorsPage() {
   return (
     <div className="flex">
       <Sidebar />

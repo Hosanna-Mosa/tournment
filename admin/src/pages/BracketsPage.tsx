@@ -1,20 +1,17 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useSearchParams } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { useEffect, useState } from "react";
 import { getBracket, generateBracket, declareWinner, getTournaments } from "@/api/api";
 
-export const Route = createFileRoute("/brackets")({
-  component: BracketBuilderPage,
-});
-
-function BracketBuilderPage() {
-  const { tournamentId } = Route.useSearch<{ tournamentId?: string }>();
-  const navigate = useNavigate();
+export default function BracketBuilderPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tournamentId = searchParams.get("tournamentId");
+  
   const [brackets, setBrackets] = useState<any[]>([]);
   const [tournaments, setTournaments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [batchSize, setBatchSize] = useState(8);
+  const [batchSize] = useState(8);
 
   const fetchData = async () => {
     try {
@@ -46,23 +43,13 @@ function BracketBuilderPage() {
     fetchBrackets();
   }, [tournamentId]);
 
-  const handleGenerate = async () => {
-    if (!tournamentId) return;
-    try {
-      await generateBracket(tournamentId, batchSize);
-      alert(`${batchSize}-team bracket generated!`);
-      fetchBrackets();
-    } catch (error: any) {
-      alert(error.response?.data?.message || "Generation failed");
-    }
-  };
-
   const handleWinner = async (matchId: string, teamId: string) => {
     try {
       await declareWinner(matchId, teamId);
       fetchBrackets();
-    } catch (error) {
-      alert("Action failed");
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Action failed";
+      alert(message);
     }
   };
 
@@ -78,7 +65,7 @@ function BracketBuilderPage() {
               <span className="text-xs text-sky-400 font-space uppercase tracking-widest font-bold">Select Tournament:</span>
               <select 
                 value={tournamentId || ''}
-                onChange={(e) => navigate({ search: { tournamentId: e.target.value } })}
+                onChange={(e) => setSearchParams({ tournamentId: e.target.value })}
                 className="bg-[#0f172a] border border-sky-500/30 rounded-lg p-2 text-white text-xs outline-none focus:border-sky-500 transition-all min-w-[250px]"
               >
                 <option value="">Select a Tournament</option>

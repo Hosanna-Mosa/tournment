@@ -1,12 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { useEffect, useState } from "react";
 import { getTournaments, deleteTournament } from "@/api/api";
-
-export const Route = createFileRoute("/tournaments")({
-  component: TournamentsPage,
-});
 
 interface Tournament {
   _id: string;
@@ -20,7 +16,7 @@ interface Tournament {
   createdAt: string;
 }
 
-function TournamentsPage() {
+export default function TournamentsPage() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -91,7 +87,7 @@ function TournamentsPage() {
                   <tr key={t._id} className="hover:bg-sky-400/[0.03] transition-colors group">
                     <td className="px-6 py-5 text-slate-500 font-space">{index + 1}</td>
                     <td className="px-6 py-5">
-                      <Link to="/tournament-detail/$tournamentId" params={{ tournamentId: t._id }} className="flex items-center gap-3 cursor-pointer">
+                      <Link to={`/tournament-detail/${t._id}`} className="flex items-center gap-3 cursor-pointer">
                         <div className="w-8 h-8 rounded bg-gradient-to-br from-sky-400/20 to-blue-600/20 border border-sky-500/20 flex items-center justify-center">
                           <span className="material-symbols-outlined text-sky-400 text-sm">videogame_asset</span>
                         </div>
@@ -118,7 +114,7 @@ function TournamentsPage() {
                     </td>
                     <td className="px-6 py-5 text-right">
                       <div className="flex justify-end gap-2">
-                        <Link to="/brackets" search={{ tournamentId: t._id }} className="p-2 text-slate-500 hover:text-sky-400">
+                        <Link to={`/brackets?tournamentId=${t._id}`} className="p-2 text-slate-500 hover:text-sky-400">
                           <span className="material-symbols-outlined text-[18px]">account_tree</span>
                         </Link>
                         <button onClick={() => handleDelete(t._id)} className="p-2 text-slate-500 hover:text-red-400">

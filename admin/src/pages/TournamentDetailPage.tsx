@@ -1,16 +1,12 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { getTournamentById, getTeams, updateTeamStatus, updateTournament, generateBracket, updatePayoutStatus } from "@/api/api";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/tournament-detail/$tournamentId")({
-  component: TournamentDetailPage,
-});
-
-function TournamentDetailPage() {
-  const { tournamentId } = useParams({ from: "/tournament-detail/$tournamentId" });
+export default function TournamentDetailPage() {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
   const [tournament, setTournament] = useState<any>(null);
   const [teams, setTeams] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
@@ -24,6 +20,7 @@ function TournamentDetailPage() {
   const [isProcessingRunnerUp, setIsProcessingRunnerUp] = useState(false);
 
   const fetchData = async () => {
+    if (!tournamentId) return;
     setLoading(true);
     setErrorMsg("");
     try {
@@ -47,6 +44,7 @@ function TournamentDetailPage() {
   };
 
   const handlePayoutStatusUpdate = async (type: 'winner' | 'runnerUp', status: string, ref: string) => {
+    if (!tournamentId) return;
     try {
       if (type === 'winner') setIsProcessingWinner(true);
       else setIsProcessingRunnerUp(true);
@@ -67,6 +65,7 @@ function TournamentDetailPage() {
   }, [tournamentId]);
 
   const handleUpdateTournament = async () => {
+    if (!tournamentId) return;
     try {
       await updateTournament(tournamentId, editData);
       setShowEditModal(false);
@@ -98,6 +97,7 @@ function TournamentDetailPage() {
   const totalBatches = Math.floor(approvedTeams.length / 8);
 
   const handleStartTournament = async () => {
+    if (!tournamentId) return;
     try {
       // 1. Generate the unified bracket for all approved teams
       await generateBracket(tournamentId);
@@ -175,6 +175,14 @@ function TournamentDetailPage() {
               className={`pb-4 uppercase text-sm tracking-widest transition-all ${activeTab === 'payouts' ? 'text-sky-400 border-b-2 border-sky-400 font-bold' : 'text-slate-500 hover:text-slate-200'}`}
             >
               Payouts
+            </button>
+          )}
+          {tournament.status === 'LIVE' && (
+            <button 
+              onClick={() => setActiveTab("refunds")}
+              className={`pb-4 uppercase text-sm tracking-widest transition-all ${activeTab === 'refunds' ? 'text-red-500 border-b-2 border-red-500 font-bold' : 'text-slate-500 hover:text-slate-200'}`}
+            >
+              Eliminated (Refunds)
             </button>
           )}
         </div>
@@ -472,6 +480,91 @@ function TournamentDetailPage() {
              </div>
           </div>
         )}
+
+        {activeTab === 'refunds' && (
+          <div className="space-y-6 animate-in fade-in duration-500">
+            <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-6">
+              <h3 className="font-space text-2xl text-red-500 mb-2 font-semibold flex items-center gap-2">
+                <span className="material-symbols-outlined">payments</span>
+                Eliminated Team Refunds
+              </h3>
+              <p className="text-slate-400 text-sm mb-6 italic">Teams that were not assigned to a batch when the tournament started.</p>
+
+              <div className="grid grid-cols-1 gap-4">
+                {teams.filter(t => t.status === 'APPROVED' && !t.batchSN).length > 0 ? (
+                  teams.filter(t => t.status === 'APPROVED' && !t.batchSN).map(team => (
+                    <div key={team._id} className="bg-slate-900/60 border border-white/5 rounded-xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                      <div className="space-y-1">
+                        <p className="text-white font-bold text-lg">{team.teamName}</p>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest">Captain: {team.captain?.username} • {team.captain?.phone || 'No Phone'}</p>
+                      </div>
+
+                      <div className="flex-1 max-w-md w-full">
+                        {team.refundStatus === 'none' ? (
+                          <div className="bg-black/20 p-3 rounded border border-white/5 text-center">
+                            <p className="text-xs text-slate-500 italic">Waiting for user to submit UPI ID</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3 bg-black/40 p-3 rounded-lg border border-white/10 group">
+                              <span className="text-[10px] text-slate-500 uppercase font-bold">UPI:</span>
+                              <p className="text-sky-400 font-mono text-sm flex-1">{team.refundUPI}</p>
+                              <button 
+                                onClick={() => { navigator.clipboard.writeText(team.refundUPI); toast.success("Copied UPI!"); }}
+                                className="text-slate-500 hover:text-white material-symbols-outlined text-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                content_copy
+                              </button>
+                            </div>
+
+                            {team.refundStatus === 'submitted' && (
+                              <div className="flex gap-2">
+                                <input 
+                                  id={`utr-${team._id}`}
+                                  className="flex-1 bg-slate-950 border border-white/10 rounded p-2 text-white text-xs focus:border-red-500 outline-none transition-all"
+                                  placeholder="Enter Refund UTR Number"
+                                />
+                                <button 
+                                  onClick={async () => {
+                                    const utr = (document.getElementById(`utr-${team._id}`) as HTMLInputElement).value;
+                                    if (!utr) return toast.error("Enter UTR number");
+                                    try {
+                                      const { updateRefundUTR } = await import("@/api/api");
+                                      await updateRefundUTR(team._id, utr);
+                                      toast.success("Refund marked as completed!");
+                                      fetchData();
+                                    } catch (err) {
+                                      toast.error("Failed to update refund");
+                                    }
+                                  }}
+                                  className="bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold px-4 py-2 rounded uppercase tracking-widest transition-all"
+                                >
+                                  Mark PAID
+                                </button>
+                              </div>
+                            )}
+
+                            {team.refundStatus === 'completed' && (
+                              <div className="bg-green-500/10 border border-green-500/20 p-3 rounded flex justify-between items-center">
+                                <div className="flex items-center gap-2 text-green-500">
+                                  <span className="material-symbols-outlined text-sm">verified</span>
+                                  <span className="text-[10px] font-bold uppercase">Refunded</span>
+                                </div>
+                                <span className="text-[10px] text-slate-400 font-mono">{team.refundUTR}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-20 text-slate-500 italic">No eliminated teams needing refunds found.</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
       
       <div className="fixed bottom-0 left-[280px] w-[calc(100%-280px)] bg-slate-950/90 backdrop-blur-xl border-t border-sky-500/30 p-4 z-40 flex justify-end gap-3">
@@ -551,6 +644,25 @@ function TournamentDetailPage() {
                     <option value="SOLO">SOLO</option>
                   </select>
                 </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Start Date</label>
+                  <input 
+                    type="date"
+                    className="w-full bg-slate-950 border border-white/10 rounded-lg p-3 text-white focus:border-sky-500 outline-none transition-all [color-scheme:dark]"
+                    value={editData.startDate || ""}
+                    onChange={(e) => setEditData({...editData, startDate: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Start Time</label>
+                  <input 
+                    type="time"
+                    className="w-full bg-slate-950 border border-white/10 rounded-lg p-3 text-white focus:border-sky-500 outline-none transition-all [color-scheme:dark]"
+                    value={editData.startTime || ""}
+                    onChange={(e) => setEditData({...editData, startTime: e.target.value})}
+                  />
+                </div>
+
               </div>
               
               <div className="flex gap-4 pt-4">

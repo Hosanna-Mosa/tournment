@@ -39,6 +39,18 @@ const tournamentSchema = mongoose.Schema(
     },
     rules: {
       type: [String],
+      default: [
+        "Level 40+ IDs required.",
+        "Emulators strictly prohibited.",
+        "Standard map rotation apply.",
+        "POV recording mandatory for all matches."
+      ]
+    },
+    startDate: {
+      type: String,
+    },
+    startTime: {
+      type: String,
     },
     schedule: {
       type: Date,

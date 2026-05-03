@@ -1,12 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 
-export const Route = createFileRoute("/match-control")({
-  component: MatchControlPage,
-});
-
-function MatchControlPage() {
+export default function MatchControlPage() {
   return (
     <div className="flex">
       <Sidebar />

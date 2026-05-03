@@ -15,9 +15,10 @@ interface Match {
 interface BracketTreeProps {
   matches: Match[];
   totalRounds: number;
+  currentUserId?: string;
 }
 
-const BracketTree: React.FC<BracketTreeProps> = ({ matches, totalRounds }) => {
+const BracketTree: React.FC<BracketTreeProps> = ({ matches, totalRounds, currentUserId }) => {
   const getRoundName = (round: number) => {
     const roundsLeft = totalRounds - round;
     if (roundsLeft === 0) return "GRAND FINAL";
@@ -40,7 +41,7 @@ const BracketTree: React.FC<BracketTreeProps> = ({ matches, totalRounds }) => {
               .filter((m) => m.round === round)
               .map((match) => (
                 <div key={match._id} className="relative">
-                  <MatchCard match={match} />
+                  <MatchCard match={match} currentUserId={currentUserId} />
                   {/* Connecting lines logic would go here for a more advanced visualization */}
                 </div>
               ))}

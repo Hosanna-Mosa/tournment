@@ -1,15 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { useEffect, useState } from "react";
 import { getAdminReviews, createReview, updateReview, deleteReview, getSettings, updateSettings } from "@/api/api";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/settings")({
-  component: SettingsPage,
-});
-
-function SettingsPage() {
+export default function SettingsPage() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -19,7 +14,8 @@ function SettingsPage() {
     qrCodeUrl: '',
     whatsappNumber: '',
     liveStreamUrl: '',
-    howToRegisterUrl: ''
+    howToRegisterUrl: '',
+    rules: [] as string[]
   });
   
   const [formData, setFormData] = useState({
@@ -43,6 +39,7 @@ function SettingsPage() {
           whatsappNumber: settingsRes.data.whatsappNumber || '',
           liveStreamUrl: settingsRes.data.liveStreamUrl || '',
           howToRegisterUrl: settingsRes.data.howToRegisterUrl || '',
+          rules: settingsRes.data.rules || []
         });
       }
     } catch (error) {
@@ -172,6 +169,45 @@ function SettingsPage() {
                   />
                   <p className="text-[10px] text-slate-500 italic">Provide a direct link to your UPI QR Code image hosted online.</p>
                 </div>
+                <div className="space-y-4 pt-6 border-t border-white/10">
+                  <label className="text-[10px] font-space font-bold text-sky-400 uppercase tracking-[0.2em]">Global Tournament Rules (Applied to all matches)</label>
+                  <div className="space-y-2">
+                    {(paymentSettings.rules || []).map((rule: string, idx: number) => (
+                      <div key={idx} className="flex gap-2 items-center bg-black/20 p-2.5 rounded-lg border border-white/5 group">
+                        <p className="flex-1 text-xs text-slate-300">{rule}</p>
+                        <button 
+                          onClick={() => {
+                            const newRules = [...paymentSettings.rules];
+                            newRules.splice(idx, 1);
+                            setPaymentSettings({...paymentSettings, rules: newRules});
+                          }}
+                          className="text-red-500/50 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                          <span className="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-3">
+                    <input 
+                      id="new-global-rule"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-lg p-3 text-white text-xs focus:border-sky-400 outline-none"
+                      placeholder="Add a new global rule..."
+                    />
+                    <button 
+                      onClick={() => {
+                        const input = document.getElementById('new-global-rule') as HTMLInputElement;
+                        if (!input.value) return;
+                        setPaymentSettings({...paymentSettings, rules: [...(paymentSettings.rules || []), input.value]});
+                        input.value = "";
+                      }}
+                      className="bg-sky-500/10 text-sky-400 border border-sky-500/30 px-6 py-2 rounded text-[10px] font-bold uppercase hover:bg-sky-500/20 transition-all"
+                    >
+                      Add Rule
+                    </button>
+                  </div>
+                </div>
+
                 <button 
                   onClick={handleUpdateSettings}
                   className="w-full bg-sky-400 text-[#0a0e2e] font-space font-bold py-3.5 rounded-xl shadow-[0_0_20px_rgba(0,170,255,0.3)] hover:scale-[1.01] active:scale-[0.99] transition-all uppercase tracking-widest text-xs"

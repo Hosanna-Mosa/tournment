@@ -1,4 +1,4 @@
-import { Link, useNavigate, useLocation } from "@tanstack/react-router";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const menuItems = [
   { path: "/dashboard", icon: "dashboard", label: "Dashboard" },
@@ -14,6 +14,12 @@ const menuItems = [
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/");
+  };
 
   return (
     <aside className="fixed left-0 top-0 h-full w-[280px] bg-[#050818] border-r border-sky-500/20 shadow-2xl shadow-sky-900/20 flex flex-col py-6 z-50">
@@ -50,7 +56,7 @@ export default function Sidebar() {
 
       <div className="px-4 pt-6 mt-6 border-t border-sky-500/10">
         <button
-          onClick={() => navigate({ to: "/tournaments" })}
+          onClick={() => navigate("/create-tournament")}
           className="w-full py-3 bg-primary-container text-on-primary-container font-black text-xs tracking-widest rounded shadow-lg shadow-sky-500/20 active:scale-95 transition-all"
         >
           CREATE TOURNAMENT
@@ -69,14 +75,15 @@ export default function Sidebar() {
           <span className="material-symbols-outlined">settings</span>
           <span className="font-space font-medium uppercase text-xs tracking-widest">Settings</span>
         </Link>
-        <Link
-          to="/"
-          className="cursor-pointer active:translate-x-1 flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-slate-200 hover:bg-slate-800/50 transition-colors duration-200"
+        <button
+          onClick={handleLogout}
+          className="w-full cursor-pointer active:translate-x-1 flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-slate-200 hover:bg-slate-800/50 transition-colors duration-200"
         >
           <span className="material-symbols-outlined">logout</span>
           <span className="font-space font-medium uppercase text-xs tracking-widest">Logout</span>
-        </Link>
+        </button>
       </div>
     </aside>
   );
 }
+

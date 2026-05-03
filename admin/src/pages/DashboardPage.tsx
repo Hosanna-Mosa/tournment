@@ -1,14 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { useEffect, useState } from "react";
-import { getTournaments, getLeaderboard } from "@/api/api";
+import { getTournaments } from "@/api/api";
 
-export const Route = createFileRoute("/dashboard")({
-  component: DashboardPage,
-});
-
-function DashboardPage() {
+export default function DashboardPage() {
   const [stats, setStats] = useState({
     tournaments: 0,
     teams: 0,
@@ -24,8 +19,8 @@ function DashboardPage() {
         const live = tournaments.filter((t: any) => t.status === 'LIVE');
         
         // Mocking some revenue logic based on entry fees
-        const revenue = tournaments.reduce((acc: number, curr: any) => acc + (curr.entryFee * curr.filledSlots), 0);
-        const totalTeams = tournaments.reduce((acc: number, curr: any) => acc + curr.filledSlots, 0);
+        const revenue = tournaments.reduce((acc: number, curr: any) => acc + (curr.entryFee * (curr.filledSlots || 0)), 0);
+        const totalTeams = tournaments.reduce((acc: number, curr: any) => acc + (curr.filledSlots || 0), 0);
 
         setStats({
           tournaments: tournaments.length,

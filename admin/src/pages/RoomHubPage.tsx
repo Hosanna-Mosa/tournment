@@ -1,15 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import { useState, useEffect } from "react";
 import { getTournaments, getBracket, setRoomDetails, toggleRoomRelease } from "@/api/api";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/room-hub")({
-  component: RoomHubPage,
-});
-
-function RoomHubPage() {
+export default function RoomHubPage() {
   const [tournaments, setTournaments] = useState<any[]>([]);
   const [selectedTournament, setSelectedTournament] = useState("");
   const [matches, setMatches] = useState<any[]>([]);
@@ -243,4 +238,3 @@ function RoomHubPage() {
     </div>
   );
 }
-
