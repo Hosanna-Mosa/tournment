@@ -35,7 +35,7 @@ const LoginPage = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8 md:mb-10">
           <Link to="/" className="text-2xl md:text-3xl font-black text-white italic tracking-tighter uppercase font-h1 leading-tight">
-            MH GAMING
+            MH GAMING TELUGU
           </Link>
           <p className="text-primary font-label-caps tracking-[0.2em] mt-3 md:mt-4 uppercase text-[9px] md:text-xs opacity-80">Access Communications Link</p>
         </div>

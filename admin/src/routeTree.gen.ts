@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TournamentsRouteImport } from './routes/tournaments'
 import { Route as TournamentDetailRouteImport } from './routes/tournament-detail'
 import { Route as StreamRouteImport } from './routes/stream'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RoomHubRouteImport } from './routes/room-hub'
 import { Route as ModeratorsRouteImport } from './routes/moderators'
 import { Route as MatchControlRouteImport } from './routes/match-control'
@@ -36,6 +37,11 @@ const TournamentDetailRoute = TournamentDetailRouteImport.update({
 const StreamRoute = StreamRouteImport.update({
   id: '/stream',
   path: '/stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoomHubRoute = RoomHubRouteImport.update({
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/match-control': typeof MatchControlRoute
   '/moderators': typeof ModeratorsRoute
   '/room-hub': typeof RoomHubRoute
+  '/settings': typeof SettingsRoute
   '/stream': typeof StreamRoute
   '/tournament-detail': typeof TournamentDetailRouteWithChildren
   '/tournaments': typeof TournamentsRoute
@@ -114,6 +121,7 @@ export interface FileRoutesByTo {
   '/match-control': typeof MatchControlRoute
   '/moderators': typeof ModeratorsRoute
   '/room-hub': typeof RoomHubRoute
+  '/settings': typeof SettingsRoute
   '/stream': typeof StreamRoute
   '/tournament-detail': typeof TournamentDetailRouteWithChildren
   '/tournaments': typeof TournamentsRoute
@@ -130,6 +138,7 @@ export interface FileRoutesById {
   '/match-control': typeof MatchControlRoute
   '/moderators': typeof ModeratorsRoute
   '/room-hub': typeof RoomHubRoute
+  '/settings': typeof SettingsRoute
   '/stream': typeof StreamRoute
   '/tournament-detail': typeof TournamentDetailRouteWithChildren
   '/tournaments': typeof TournamentsRoute
@@ -147,6 +156,7 @@ export interface FileRouteTypes {
     | '/match-control'
     | '/moderators'
     | '/room-hub'
+    | '/settings'
     | '/stream'
     | '/tournament-detail'
     | '/tournaments'
@@ -162,6 +172,7 @@ export interface FileRouteTypes {
     | '/match-control'
     | '/moderators'
     | '/room-hub'
+    | '/settings'
     | '/stream'
     | '/tournament-detail'
     | '/tournaments'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/match-control'
     | '/moderators'
     | '/room-hub'
+    | '/settings'
     | '/stream'
     | '/tournament-detail'
     | '/tournaments'
@@ -193,6 +205,7 @@ export interface RootRouteChildren {
   MatchControlRoute: typeof MatchControlRoute
   ModeratorsRoute: typeof ModeratorsRoute
   RoomHubRoute: typeof RoomHubRoute
+  SettingsRoute: typeof SettingsRoute
   StreamRoute: typeof StreamRoute
   TournamentDetailRoute: typeof TournamentDetailRouteWithChildren
   TournamentsRoute: typeof TournamentsRoute
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/stream'
       fullPath: '/stream'
       preLoaderRoute: typeof StreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/room-hub': {
@@ -315,6 +335,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatchControlRoute: MatchControlRoute,
   ModeratorsRoute: ModeratorsRoute,
   RoomHubRoute: RoomHubRoute,
+  SettingsRoute: SettingsRoute,
   StreamRoute: StreamRoute,
   TournamentDetailRoute: TournamentDetailRouteWithChildren,
   TournamentsRoute: TournamentsRoute,

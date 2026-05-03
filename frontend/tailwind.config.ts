@@ -112,6 +112,9 @@ export default {
         "body-md": ["Inter", "sans-serif"],
         "body-lg": ["Inter", "sans-serif"],
         sans: ["Inter", "sans-serif"],
+        rajdhani: ["Rajdhani", "sans-serif"],
+        poppins: ["Poppins", "sans-serif"],
+        inter: ["Inter", "sans-serif"],
       },
       fontSize: {
         "label-caps": ["14px", { lineHeight: "1.0", letterSpacing: "0.1em", fontWeight: "600" }],

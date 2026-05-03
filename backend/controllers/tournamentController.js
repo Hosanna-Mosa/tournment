@@ -151,8 +151,12 @@ const deleteTournament = async (req, res) => {
 // @desc    Register for a tournament
 // @route   POST /api/tournaments/:id/register
 // @access  Private
-const registerForTournament = async (req, res) => {
+const registerForTournament = async (req, res, next) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
     const tournament = await Tournament.findById(req.params.id);
 
     if (tournament) {
@@ -178,7 +182,7 @@ const registerForTournament = async (req, res) => {
 
       // 2. Validation: UTR format (12 digits)
       const utrRegex = /^\d{12}$/;
-      if (!utrRegex.test(team.utrNumber)) {
+      if (!team.utrNumber || !utrRegex.test(team.utrNumber)) {
         return res.status(400).json({ message: 'Invalid UTR format. Must be exactly 12 digits.' });
       }
 
@@ -204,7 +208,7 @@ const registerForTournament = async (req, res) => {
       res.status(404).json({ message: 'Tournament not found' });
     }
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    next(error);
   }
 };
 

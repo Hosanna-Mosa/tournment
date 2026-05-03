@@ -58,10 +58,17 @@ export default function Sidebar() {
       </div>
 
       <div className="px-4 mt-auto space-y-1 pb-6">
-        <div className="cursor-pointer active:translate-x-1 flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-slate-200 hover:bg-slate-800/50 transition-colors duration-200">
+        <Link
+          to="/settings"
+          className={`cursor-pointer active:translate-x-1 flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 ${
+            location.pathname === "/settings"
+              ? "bg-sky-400/10 text-sky-400 border-r-2 border-sky-400 shadow-[inset_-10px_0_15px_-10px_rgba(0,170,255,0.5)]"
+              : "text-slate-500 hover:text-slate-200 hover:bg-slate-800/50"
+          }`}
+        >
           <span className="material-symbols-outlined">settings</span>
           <span className="font-space font-medium uppercase text-xs tracking-widest">Settings</span>
-        </div>
+        </Link>
         <Link
           to="/"
           className="cursor-pointer active:translate-x-1 flex items-center gap-4 px-4 py-3 text-slate-500 hover:text-slate-200 hover:bg-slate-800/50 transition-colors duration-200"

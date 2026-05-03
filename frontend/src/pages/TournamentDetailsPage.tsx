@@ -1,7 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getTournamentById, registerForTournament, getMyTeam, updateMyTeam, getProfile, updateProfile, updatePayoutInfo } from '@/api/api';
+import { getTournamentById, registerForTournament, getMyTeam, updateMyTeam, getProfile, updateProfile, updatePayoutInfo, getReviews, getSettings } from '@/api/api';
 import { toast } from 'sonner';
+
+const TournamentDetailSkeleton = () => (
+  <div className="min-h-screen bg-[#020617] animate-pulse">
+    <div className="h-[250px] md:h-[420px] bg-slate-900 w-full" />
+    <div className="px-4 md:px-6 max-w-7xl mx-auto -mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-2 space-y-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-16 md:h-20 bg-slate-900 rounded-xl border border-white/5" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="h-40 bg-slate-900 rounded-xl border border-white/5" />
+          <div className="h-40 bg-slate-900 rounded-xl border border-white/5" />
+        </div>
+      </div>
+      <div className="space-y-6">
+        <div className="h-32 bg-slate-900 rounded-xl border border-white/5" />
+        <div className="h-40 bg-slate-900 rounded-xl border border-white/5" />
+      </div>
+    </div>
+  </div>
+);
 
 const TournamentDetailsPage = () => {
   const { id } = useParams();
@@ -15,6 +38,13 @@ const TournamentDetailsPage = () => {
   const [saveToProfile, setSaveToProfile] = useState(false);
   const [upiId, setUpiId] = useState("");
   const [submittingPayout, setSubmittingPayout] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [settings, setSettings] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+  
+  // Demo States
+  const isDemo = id === 'dummy-id';
+  const [demoStatus, setDemoStatus] = useState<'REGISTER_NOW' | 'APPROVED' | 'PROBLEM' | 'BADGE'>('REGISTER_NOW');
 
   // Check login status
   const isLoggedIn = !!localStorage.getItem('token');
@@ -22,15 +52,56 @@ const TournamentDetailsPage = () => {
   const [registrationStep, setRegistrationStep] = useState(1);
   const [formData, setFormData] = useState({
     teamName: '',
-    players: Array(8).fill({ username: '', gameId: '' }),
+    players: Array(5).fill({ username: '', gameId: '' }),
     utrNumber: ''
   });
 
   const fetchData = async () => {
     try {
       if (!id) return;
-      const { data } = await getTournamentById(id);
-      setTournament(data);
+
+      if (isDemo) {
+        // Fetch demo reviews and settings too
+        const [rRes, sRes] = await Promise.all([
+          getReviews(),
+          getSettings().catch(() => ({ data: null }))
+        ]);
+        setReviews(rRes.data.data);
+        setSettings(sRes.data);
+
+        setTournament({
+          _id: 'dummy-id',
+          title: 'DEMO TOURNAMENT (FRONTEND ONLY)',
+          type: 'SQUAD',
+          game: 'Free Fire',
+          prizePool: 5000,
+          entryFee: 50,
+          totalSlots: 48,
+          filledSlots: 12,
+          status: 'UPCOMING',
+          rules: ["Demo Rule 1", "Demo Rule 2"]
+        });
+        if (demoStatus !== 'REGISTER_NOW') {
+          setUserTeam({
+            teamName: formData.teamName || 'DEMO TEAM',
+            status: demoStatus === 'APPROVED' ? 'APPROVED' : demoStatus === 'PROBLEM' ? 'WAITING_PROBLEM' : 'WAITING_BADGE'
+          });
+        } else {
+          setUserTeam(null);
+        }
+        setLoading(false);
+        return;
+      }
+
+      const [tRes, rRes, sRes] = await Promise.all([
+        getTournamentById(id),
+        getReviews(),
+        getSettings().catch(() => ({ data: null }))
+      ]);
+
+      setTournament(tRes.data);
+      setReviews(rRes.data.data);
+      setSettings(sRes.data);
 
       if (isLoggedIn) {
         const [teamRes, profileRes] = await Promise.all([
@@ -39,29 +110,39 @@ const TournamentDetailsPage = () => {
         ]);
         
         const myTeam = teamRes.data;
-        const profile = profileRes.data;
+        const currentProfile = profileRes.data;
         
         setUserTeam(myTeam);
+        setProfile(currentProfile);
 
         // Auto-fill logic
         if (myTeam) {
           setFormData({
             teamName: myTeam.teamName,
-            players: myTeam.players.length >= 8 ? myTeam.players : [...myTeam.players, ...Array(8 - myTeam.players.length).fill({ username: '', gameId: '' })],
+            players: myTeam.players.length >= 5 ? myTeam.players : [...myTeam.players, ...Array(5 - myTeam.players.length).fill({ username: '', gameId: '' })],
             utrNumber: myTeam.utrNumber || ''
-          });
-        } else if (profile?.savedTeam) {
-          setFormData({
-            teamName: profile.savedTeam.teamName,
-            players: profile.savedTeam.players.length >= 8 ? profile.savedTeam.players : [...profile.savedTeam.players, ...Array(8 - profile.savedTeam.players.length).fill({ username: '', gameId: '' })],
-            utrNumber: ''
           });
         }
       }
     } catch (error) {
-      console.error("Failed to fetch details:", error);
+      console.error("Failed to fetch data:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLoadSavedTeam = () => {
+    if (profile?.savedTeam) {
+      setFormData({
+        ...formData,
+        teamName: profile.savedTeam.teamName,
+        players: profile.savedTeam.players.length >= 5 
+          ? profile.savedTeam.players 
+          : [...profile.savedTeam.players, ...Array(5 - profile.savedTeam.players.length).fill({ username: '', gameId: '' })],
+      });
+      toast.success("Saved team loaded!");
+    } else {
+      toast.error("No saved team found in your profile.");
     }
   };
 
@@ -79,6 +160,7 @@ const TournamentDetailsPage = () => {
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     fetchData();
   }, [id, isLoggedIn]);
 
@@ -129,6 +211,16 @@ const TournamentDetailsPage = () => {
 
     setRegistering(true);
     try {
+      if (isDemo) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setDemoStatus('APPROVED');
+        setShowModal(false);
+        setRegistrationStep(1);
+        toast.success("Registration Approved (Demo Mode)");
+        fetchData();
+        return;
+      }
+
       const payload = {
         teamName: formData.teamName,
         players: formData.players.filter(p => p.username && p.gameId),
@@ -163,28 +255,24 @@ const TournamentDetailsPage = () => {
     }
   };
 
-const TournamentDetailSkeleton = () => (
-    <div className="min-h-screen bg-[#020617] animate-pulse">
-      <div className="h-[250px] md:h-[420px] bg-slate-900 w-full" />
-      <div className="px-4 md:px-6 max-w-7xl mx-auto -mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-16 md:h-20 bg-slate-900 rounded-xl border border-white/5" />
-            ))}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="h-40 bg-slate-900 rounded-xl border border-white/5" />
-            <div className="h-40 bg-slate-900 rounded-xl border border-white/5" />
-          </div>
-        </div>
-        <div className="space-y-6">
-          <div className="h-32 bg-slate-900 rounded-xl border border-white/5" />
-          <div className="h-40 bg-slate-900 rounded-xl border border-white/5" />
-        </div>
-      </div>
-    </div>
-  );
+  const [showAllRules, setShowAllRules] = useState(false);
+
+  const defaultRules = [
+    "Level 40+ IDs required.",
+    "Emulators strictly prohibited.",
+    "Standard map rotation apply.",
+    "POV recording mandatory for all matches.",
+    "No hacking or use of third-party tools.",
+    "All team members must be present 15 mins before match.",
+    "Internet issues are at the player's own risk.",
+    "Organizers decision is final and binding.",
+    "Teaming with other teams results in immediate disqualification.",
+    "Proper screenshots must be provided after match completion.",
+    "No abusive language in the lobby or match.",
+    "Respect all fellow competitors.",
+    "Prize pool will be distributed within 48 hours.",
+    "Matches will be played on Bermuda and Purgatory."
+  ];
 
   if (loading) return <TournamentDetailSkeleton />;
 
@@ -198,6 +286,9 @@ const TournamentDetailSkeleton = () => (
     { icon: "payments", label: "ENTRY", val: `₹${tournament.entryFee}` },
     { icon: "emoji_events", label: "WINNER", val: `₹${tournament.prizePool}` },
   ];
+
+  const rulesToShow = tournament.rules && tournament.rules.length > 0 ? tournament.rules : defaultRules;
+  const displayedRules = showAllRules ? rulesToShow : rulesToShow.slice(0, 4);
 
   return (
     <main className="min-h-screen pb-32 bg-[#020617]">
@@ -322,22 +413,35 @@ const TournamentDetailSkeleton = () => (
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <div className="glass-card p-5 md:p-6 rounded-xl border border-white/5 bg-white/[0.02]">
+            <div className="glass-card p-5 md:p-6 rounded-xl border border-white/5 bg-white/[0.02] relative">
               <h3 className="font-h3 text-white mb-3 md:mb-4 flex items-center gap-2 uppercase tracking-widest text-xs md:text-sm">
                 <span className="material-symbols-outlined text-primary text-xl">gavel</span> RULES
               </h3>
               <ul className="space-y-2 md:space-y-3 text-slate-400 text-[11px] md:text-sm">
-                {tournament.rules && tournament.rules.length > 0 ? (
-                  tournament.rules.map((rule: string, i: number) => <li key={i}>• {rule}</li>)
-                ) : (
-                  <>
-                    <li>• Level 40+ IDs required.</li>
-                    <li>• Emulators strictly prohibited.</li>
-                    <li>• Standard map rotation apply.</li>
-                    <li>• POV recording mandatory for all matches.</li>
-                  </>
-                )}
+                {displayedRules.map((rule: string, i: number) => (
+                  <li key={i} className="animate-in fade-in slide-in-from-left-2 duration-300">• {rule}</li>
+                ))}
               </ul>
+              
+              {rulesToShow.length > 4 && (
+                <div className="mt-4 flex">
+                  {!showAllRules ? (
+                    <button 
+                      onClick={() => setShowAllRules(true)}
+                      className="text-primary text-[10px] md:text-xs font-bold uppercase tracking-widest flex items-center gap-1 hover:text-white transition-colors"
+                    >
+                      Read More <span className="material-symbols-outlined text-sm">expand_more</span>
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => setShowAllRules(false)}
+                      className="text-primary text-[10px] md:text-xs font-bold uppercase tracking-widest flex items-center gap-1 hover:text-white transition-colors"
+                    >
+                      Close <span className="material-symbols-outlined text-sm">expand_less</span>
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
             <div className="glass-card p-5 md:p-6 rounded-xl border border-white/5 bg-white/[0.02]">
               <h3 className="font-h3 text-white mb-3 md:mb-4 flex items-center gap-2 uppercase tracking-widest text-xs md:text-sm">
@@ -348,7 +452,7 @@ const TournamentDetailSkeleton = () => (
                   <span className="text-slate-400 font-space">{tournament.filledSlots} Teams Registered</span>
                 </div>
                 <div className="h-2.5 md:h-3 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-primary to-sky-400 shadow-[0_0_15px_rgba(0,170,255,0.5)]" style={{ width: `${Math.min((tournament.filledSlots / 8) * 100, 100)}%` }}></div>
+                  <div className="h-full bg-gradient-to-r from-primary to-sky-400 shadow-[0_0_15px_rgba(0,170,255,0.5)]" style={{ width: `${Math.min((tournament.filledSlots / (tournament.totalSlots || 48)) * 100, 100)}%` }}></div>
                 </div>
                 <p className="text-[9px] md:text-[10px] text-slate-500 mt-3 md:mt-4 italic">Next batch starts at 8, 16, or 24 teams.</p>
               </div>
@@ -393,8 +497,8 @@ const TournamentDetailSkeleton = () => (
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowModal(false)} />
           <div className="relative glass-card w-full max-w-2xl bg-[#0a0e2e] border border-primary/30 rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,170,255,0.2)]">
             <div className="bg-primary/10 px-6 py-4 border-b border-white/5 flex justify-between items-center">
-              <h2 className="font-h2 text-white uppercase tracking-widest">
-                {isEditing ? "Edit Team Details" : registrationStep === 1 ? "Step 1: Team Registration" : "Step 2: Payment Verification"}
+              <h2 className="font-h2 text-white uppercase tracking-widest text-sm md:text-base">
+                {isEditing ? "Edit Team Details" : registrationStep === 1 ? "Fill in the details" : "Step 2: Payment Verification"}
               </h2>
               <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-white">
                 <span className="material-symbols-outlined">close</span>
@@ -404,6 +508,25 @@ const TournamentDetailSkeleton = () => (
             <div className="p-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
               {registrationStep === 1 ? (
                 <form onSubmit={(e) => { e.preventDefault(); if (isEditing) handleRegister(e); else handleNextStep(e); }} className="space-y-6">
+                  {profile?.savedTeam && !isEditing && (
+                    <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-primary">groups</span>
+                        <div>
+                          <p className="text-[10px] text-primary uppercase font-bold">Saved Team Found</p>
+                          <p className="text-white text-xs font-bold">{profile.savedTeam.teamName}</p>
+                        </div>
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={handleLoadSavedTeam}
+                        className="bg-primary/20 hover:bg-primary/30 text-primary px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all"
+                      >
+                        Load Team
+                      </button>
+                    </div>
+                  )}
+
                   <div className="space-y-2">
                     <label className="text-[10px] font-label-caps text-primary uppercase tracking-[0.2em]">Team Name</label>
                     <input 
@@ -416,8 +539,20 @@ const TournamentDetailSkeleton = () => (
                   </div>
 
                   <div className="space-y-4">
-                    <label className="text-[10px] font-label-caps text-primary uppercase tracking-[0.2em]">Player Details (Team of 8)</label>
-                    {formData.players.map((player, index) => (
+                    <div className="flex justify-between items-center">
+                      <label className="text-[10px] font-label-caps text-primary uppercase tracking-[0.2em]">Player Details (Team of 5)</label>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const newPlayers = Array(5).fill({ username: '', gameId: '' });
+                          setFormData({...formData, players: newPlayers});
+                        }}
+                        className="text-[9px] text-slate-500 hover:text-white uppercase"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+                    {formData.players.slice(0, 5).map((player, index) => (
                       <div key={index} className="grid grid-cols-2 gap-3 p-4 bg-white/[0.02] border border-white/5 rounded-xl">
                         <div className="space-y-1">
                           <p className="text-[9px] text-slate-500 uppercase">Player {index + 1} Name</p>
@@ -452,61 +587,77 @@ const TournamentDetailSkeleton = () => (
                         />
                         {saveToProfile && <span className="material-symbols-outlined text-white text-sm">check</span>}
                       </div>
-                      <span className="text-xs text-slate-400 group-hover:text-white transition-colors">Save team details to my profile for future tournaments</span>
+                      <span className="text-xs text-slate-400 group-hover:text-white transition-colors">Save team details to my profile</span>
                     </label>
                   )}
 
                   <button 
                     type="submit"
-                    className="w-full bg-primary hover:bg-primary/80 text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(0,170,255,0.4)] uppercase tracking-widest transition-all"
+                    className="w-full bg-primary hover:bg-primary/80 text-white font-bold py-3 md:py-4 rounded-xl shadow-[0_0_20px_rgba(0,170,255,0.4)] uppercase tracking-widest transition-all text-xs md:text-sm"
                   >
-                    {isEditing ? (registering ? "Saving..." : "Update Team Details") : "Proceed to Payment"}
+                    {isEditing ? (registering ? "Saving..." : "Update Team Details") : "Next, Proceed to Play"}
                   </button>
                 </form>
               ) : (
-                <form onSubmit={handleRegister} className="space-y-6">
+                <form onSubmit={handleRegister} className="space-y-5">
                   <div className="text-center space-y-4">
-                    <p className="text-slate-400 text-sm">Use the UPI ID below to pay the entry fee of <span className="text-white font-bold">₹{tournament.entryFee}</span>.</p>
+                    <p className="text-slate-400 text-xs">Scan the QR code or use the UPI ID to pay <span className="text-white font-bold text-sm">₹{tournament.entryFee}</span></p>
                     
-                    <div className="bg-white/5 border border-white/10 p-3 rounded-xl inline-flex items-center gap-3">
-                      <p className="text-sky-400 font-mono text-sm">mhgaming@upi</p>
+                    {/* QR Code Display */}
+                    <div className="relative mx-auto w-48 h-48 bg-white p-2 rounded-xl shadow-2xl">
+                      {settings?.qrCodeUrl ? (
+                        <img 
+                          src={settings.qrCodeUrl} 
+                          alt="Payment QR Code" 
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-slate-100 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-200">
+                          <span className="material-symbols-outlined text-4xl mb-2">qr_code_2</span>
+                          <span className="text-[10px] font-bold uppercase">QR Code Pending</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="bg-white/5 border border-white/10 p-2.5 rounded-xl inline-flex items-center gap-3">
+                      <p className="text-sky-400 font-mono text-xs">{settings?.upiId || "mhgaming@upi"}</p>
                       <button 
                         type="button"
                         onClick={() => {
-                          navigator.clipboard.writeText("mhgaming@upi");
+                          navigator.clipboard.writeText(settings?.upiId || "mhgaming@upi");
                           toast.success("UPI ID copied!");
                         }}
-                        className="text-slate-500 hover:text-white"
+                        className="text-slate-500 hover:text-white flex p-1"
                       >
-                        <span className="material-symbols-outlined text-sm">content_copy</span>
+                        <span className="material-symbols-outlined text-xs">content_copy</span>
                       </button>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-label-caps text-primary uppercase tracking-[0.2em]">Transaction UTR Number</label>
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-label-caps text-primary uppercase tracking-[0.2em]">Transaction UTR Number</label>
                     <input 
                       required
-                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:border-primary outline-none transition-all font-mono"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:border-primary outline-none transition-all font-mono text-sm"
                       placeholder="Enter 12-digit UTR Number"
                       value={formData.utrNumber}
                       onChange={(e) => setFormData({...formData, utrNumber: e.target.value})}
                     />
-                    <p className="text-[9px] text-slate-500 italic">Enter the reference number from your payment receipt.</p>
+                    <p className="text-[8px] text-slate-500 italic">Verify your 12-digit UTR number from payment receipt.</p>
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 max-w-sm mx-auto">
                     <button 
                       type="button"
                       onClick={() => setRegistrationStep(1)}
-                      className="w-1/3 bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-xl uppercase tracking-widest transition-all"
+                      className="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl uppercase tracking-widest transition-all text-[10px]"
                     >
                       Back
                     </button>
                     <button 
                       type="submit"
                       disabled={registering}
-                      className="w-2/3 bg-primary hover:bg-primary/80 text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(0,170,255,0.4)] disabled:opacity-50 uppercase tracking-widest transition-all"
+                      className="flex-[2] bg-primary hover:bg-primary/80 text-white font-bold py-3 rounded-xl shadow-[0_0_20px_rgba(0,170,255,0.4)] disabled:opacity-50 uppercase tracking-widest transition-all text-[10px]"
                     >
                       {registering ? "Submitting..." : "Submit Registration"}
                     </button>
@@ -528,7 +679,7 @@ const TournamentDetailSkeleton = () => (
                 className="bg-primary hover:bg-primary/80 text-white font-bold text-sm px-8 py-3 rounded-lg shadow-[0_0_20px_rgba(0,170,255,0.3)] hover:scale-105 transition-all flex items-center gap-2 uppercase tracking-widest"
               >
                 <span className="material-symbols-outlined text-base">how_to_reg</span>
-                Register Your Team
+                Register Now
               </button>
             )
           ) : (
@@ -588,11 +739,30 @@ const TournamentDetailSkeleton = () => (
                 )}
 
                 {/* APPROVED Status */}
-                {userTeam.status === 'APPROVED' && !userTeam.batchSN && (
+                {(userTeam.status === 'APPROVED' || demoStatus === 'APPROVED') && !userTeam.batchSN && (
                   <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-green-500/10 text-green-500 border-green-500/30">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-sm">verified</span>
                       <span className="text-sm">Team Approved</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* DEMO SPECIFIC STATUSES */}
+                {isDemo && demoStatus === 'PROBLEM' && (
+                  <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-amber-500/10 text-amber-500 border-amber-500/30">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm">warning</span>
+                      <span className="text-sm">Waiting for a problem</span>
+                    </div>
+                  </div>
+                )}
+
+                {isDemo && demoStatus === 'BADGE' && (
+                  <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-purple-500/10 text-purple-500 border-purple-500/30">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm">stars</span>
+                      <span className="text-sm">Waiting for badge</span>
                     </div>
                   </div>
                 )}
@@ -610,7 +780,33 @@ const TournamentDetailSkeleton = () => (
                 )}
               </div>
 
-              <div className="hidden md:block w-48"></div> {/* Spacer to balance layout */}
+              <div className="flex items-center gap-3">
+                {isDemo && (
+                  <button 
+                    onClick={() => {
+                      if (demoStatus === 'APPROVED') setDemoStatus('PROBLEM');
+                      else if (demoStatus === 'PROBLEM') setDemoStatus('BADGE');
+                      else if (demoStatus === 'BADGE') setDemoStatus('APPROVED');
+                      fetchData();
+                    }}
+                    className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg transition-all border border-white/10"
+                  >
+                    <span className="material-symbols-outlined text-xs">sync</span>
+                    Cycle Demo Status
+                  </button>
+                )}
+                <a 
+                  href="https://wa.me/919398334115"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#25D366] hover:bg-[#128C7E] text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg transition-all"
+                >
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                  </svg>
+                  Contact Support
+                </a>
+              </div>
             </div>
           )}
         </div>

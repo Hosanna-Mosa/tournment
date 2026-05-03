@@ -10,6 +10,8 @@ const tournamentRoutes = require('./routes/tournamentRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
 const bracketRoutes = require('./routes/bracketRoutes');
 const teamRoutes = require('./routes/teamRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
 
 // Load env vars
 dotenv.config();
@@ -36,6 +38,8 @@ app.use('/api/tournaments', tournamentRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/bracket', bracketRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

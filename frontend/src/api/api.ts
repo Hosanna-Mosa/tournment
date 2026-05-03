@@ -50,4 +50,15 @@ export const getLeaderboard = () => api.get('/leaderboard');
 export const getMyTeam = (tournamentId: string) => api.get(`/teams/my-team/${tournamentId}`);
 export const updateMyTeam = (tournamentId: string, data: any) => api.put(`/teams/my/${tournamentId}`, data);
 
+// Reviews
+export const getReviews = () => api.get('/reviews');
+export const getAdminReviews = () => api.get('/reviews/admin');
+export const createReview = (data: any) => api.post('/reviews', data);
+export const updateReview = (id: string, data: any) => api.put(`/reviews/${id}`, data);
+export const deleteReview = (id: string) => api.delete(`/reviews/${id}`);
+
+// Settings
+export const getSettings = () => api.get('/settings');
+export const updateSettings = (data: any) => api.put('/settings', data);
+
 export default api;

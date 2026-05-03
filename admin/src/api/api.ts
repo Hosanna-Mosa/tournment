@@ -46,4 +46,14 @@ export const updateTeamStatus = (teamId: string, data: any) => api.patch(`/teams
 // Leaderboard / Stats
 export const getLeaderboard = () => api.get('/leaderboard');
 
+// Reviews
+export const getAdminReviews = () => api.get('/reviews/admin');
+export const createReview = (data: any) => api.post('/reviews', data);
+export const updateReview = (id: string, data: any) => api.put(`/reviews/${id}`, data);
+export const deleteReview = (id: string) => api.delete(`/reviews/${id}`);
+
+// Settings
+export const getSettings = () => api.get('/settings');
+export const updateSettings = (data: any) => api.put('/settings', data);
+
 export default api;

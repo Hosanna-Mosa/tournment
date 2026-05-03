@@ -96,21 +96,25 @@ const getUserProfile = async (req, res) => {
 // @desc    Update user profile
 // @route   PUT /api/users/profile
 // @access  Private
-const updateUserProfile = async (req, res) => {
-  const user = await User.findById(req.user._id);
+const updateUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
 
-  if (user) {
-    if (req.body.savedTeam) {
-      user.savedTeam = req.body.savedTeam;
+    if (user) {
+      if (req.body.savedTeam) {
+        user.savedTeam = req.body.savedTeam;
+      }
+      
+      const updatedUser = await user.save();
+      res.json({
+        _id: updatedUser._id,
+        savedTeam: updatedUser.savedTeam,
+      });
+    } else {
+      res.status(404).json({ message: 'User not found' });
     }
-    
-    const updatedUser = await user.save();
-    res.json({
-      _id: updatedUser._id,
-      savedTeam: updatedUser.savedTeam,
-    });
-  } else {
-    res.status(404).json({ message: 'User not found' });
+  } catch (error) {
+    next(error);
   }
 };
 

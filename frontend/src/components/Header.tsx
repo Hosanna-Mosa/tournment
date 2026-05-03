@@ -1,15 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { getSettings } from "@/api/api";
 
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [settings, setSettings] = useState<any>(null);
 
   const isLoggedIn = !!localStorage.getItem('token');
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await getSettings();
+        setSettings(data);
+      } catch (error) {
+        console.error("Failed to fetch settings:", error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -19,10 +33,8 @@ const Header = () => {
   };
 
   const navItems = [
-    { name: "Tournaments", path: "/tournaments" },
-    { name: "Leaderboard", path: "/leaderboard" },
-    { name: "Hall of Fame", path: "#" },
-    { name: "Support", path: "#" },
+    { name: "Tournaments", path: "/tournaments", isExternal: false },
+    { name: "Support", path: settings?.whatsappNumber ? `https://wa.me/${settings.whatsappNumber}` : "https://wa.me/919398334115", isExternal: true },
   ];
 
   return (
@@ -40,18 +52,30 @@ const Header = () => {
               <SheetContent side="left" className="bg-[#0a0e2e] border-r border-primary/20 p-6 pt-12">
                 <nav className="flex flex-col gap-6">
                   {navItems.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.path}
-                      onClick={() => setIsOpen(false)}
-                      className={`${
-                        location.pathname === item.path
-                          ? "text-[#00aaff]"
-                          : "text-gray-400 hover:text-white"
-                      } font-h1 uppercase tracking-widest text-lg transition-all duration-300`}
-                    >
-                      {item.name}
-                    </Link>
+                    item.isExternal ? (
+                      <a
+                        key={item.name}
+                        href={item.path}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-white font-h1 uppercase tracking-widest text-lg transition-all duration-300"
+                      >
+                        {item.name}
+                      </a>
+                    ) : (
+                      <Link
+                        key={item.name}
+                        to={item.path}
+                        onClick={() => setIsOpen(false)}
+                        className={`${
+                          location.pathname === item.path
+                            ? "text-[#00aaff]"
+                            : "text-gray-400 hover:text-white"
+                        } font-h1 uppercase tracking-widest text-lg transition-all duration-300`}
+                      >
+                        {item.name}
+                      </Link>
+                    )
                   ))}
                   {isLoggedIn && (
                     <button 
@@ -66,24 +90,36 @@ const Header = () => {
             </Sheet>
           </div>
 
-          <Link to="/" className="text-lg md:text-2xl font-black text-white italic tracking-tighter uppercase font-h1">
-            MH GAMING
+          <Link to="/" className="text-[11px] xs:text-sm sm:text-lg md:text-2xl font-black text-white italic tracking-tighter uppercase font-h1 whitespace-nowrap">
+            MH GAMING TELUGU
           </Link>
         </div>
 
         <nav className="hidden md:flex items-center gap-8">
           {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={`${
-                location.pathname === item.path
-                  ? "text-[#00aaff] border-b-2 border-[#00aaff]"
-                  : "text-gray-400 hover:text-white"
-              } pb-1 font-h1 uppercase tracking-wider text-[10px] lg:text-xs transition-all duration-300`}
-            >
-              {item.name}
-            </Link>
+            item.isExternal ? (
+              <a
+                key={item.name}
+                href={item.path}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white pb-1 font-h1 uppercase tracking-wider text-[10px] lg:text-xs transition-all duration-300"
+              >
+                {item.name}
+              </a>
+            ) : (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`${
+                  location.pathname === item.path
+                    ? "text-[#00aaff] border-b-2 border-[#00aaff]"
+                    : "text-gray-400 hover:text-white"
+                } pb-1 font-h1 uppercase tracking-wider text-[10px] lg:text-xs transition-all duration-300`}
+              >
+                {item.name}
+              </Link>
+            )
           ))}
         </nav>
 
