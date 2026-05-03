@@ -117,6 +117,28 @@ function CreateTournamentPage() {
                   onChange={(e) => setFormData({...formData, entryFee: Number(e.target.value)})}
                 />
               </div>
+
+              <div className="space-y-2">
+                <label className="text-outline font-space text-xs uppercase tracking-widest font-semibold">Start Date</label>
+                <input 
+                  type="date"
+                  required
+                  className="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-white focus:border-sky-400 outline-none transition-colors [color-scheme:dark]"
+                  value={(formData as any).startDate || ''}
+                  onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-outline font-space text-xs uppercase tracking-widest font-semibold">Start Time</label>
+                <input 
+                  type="time"
+                  required
+                  className="w-full bg-surface-container border border-outline-variant rounded-lg p-3 text-white focus:border-sky-400 outline-none transition-colors [color-scheme:dark]"
+                  value={(formData as any).startTime || ''}
+                  onChange={(e) => setFormData({...formData, startTime: e.target.value})}
+                />
+              </div>
             </div>
 
             <div className="flex justify-end pt-4">

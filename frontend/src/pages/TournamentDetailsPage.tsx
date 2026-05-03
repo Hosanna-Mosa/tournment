@@ -285,10 +285,17 @@ const TournamentDetailsPage = () => {
     { icon: "groups", label: "MODE", val: tournament.type },
     { icon: "payments", label: "ENTRY", val: `₹${tournament.entryFee}` },
     { icon: "emoji_events", label: "WINNER", val: `₹${tournament.prizePool}` },
+    { icon: "calendar_month", label: "DATE", val: tournament.startDate || "TBA" },
+    { icon: "schedule", label: "TIME", val: tournament.startTime || "TBA" },
   ];
 
-  const rulesToShow = tournament.rules && tournament.rules.length > 0 ? tournament.rules : defaultRules;
+  const rulesToShow = (settings?.rules && settings.rules.length > 0) ? settings.rules : defaultRules;
   const displayedRules = showAllRules ? rulesToShow : rulesToShow.slice(0, 4);
+
+  // Hold System Logic: Calculate progress to next batch of 8
+  const approvedTeamsCount = tournament.filledSlots || 0;
+  const currentBatchProgress = approvedTeamsCount % 8;
+  const teamsNeededCount = currentBatchProgress === 0 ? 0 : 8 - currentBatchProgress;
 
   return (
     <main className="min-h-screen pb-32 bg-[#020617]">
@@ -452,7 +459,16 @@ const TournamentDetailsPage = () => {
                   <span className="text-slate-400 font-space">{tournament.filledSlots} Teams Registered</span>
                 </div>
                 <div className="h-2.5 md:h-3 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-primary to-sky-400 shadow-[0_0_15px_rgba(0,170,255,0.5)]" style={{ width: `${Math.min((tournament.filledSlots / (tournament.totalSlots || 48)) * 100, 100)}%` }}></div>
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-sky-400 shadow-[0_0_15px_rgba(0,170,255,0.5)] transition-all duration-1000" 
+                    style={{ 
+                      width: `${
+                        tournament.filledSlots > 0 && tournament.filledSlots % 8 === 0 
+                          ? 100 
+                          : ((tournament.filledSlots % 8) / 8) * 100
+                      }%` 
+                    }}
+                  ></div>
                 </div>
                 <p className="text-[9px] md:text-[10px] text-slate-500 mt-3 md:mt-4 italic">Next batch starts at 8, 16, or 24 teams.</p>
               </div>
@@ -699,84 +715,211 @@ const TournamentDetailsPage = () => {
               </div>
               
               <div className="flex-1 flex justify-center">
-                {/* WAITING_VERIFICATION Status */}
-                {userTeam.status === 'WAITING_VERIFICATION' && (
-                  <div className="px-6 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-blue-500/10 text-blue-400 border-blue-500/30">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm animate-pulse">account_balance_wallet</span>
-                      <span className="text-xs">Payment Verification Pending</span>
+                {userTeam.status === 'APPROVED' && userTeam.currentMatch?.isRoomReleased ? (
+                  /* Room ID & Password Display - Exclusive Mode */
+                  <div className="flex flex-col md:flex-row gap-3 animate-in slide-in-from-right-4 duration-500">
+                    <div className="bg-slate-900 border border-primary/40 px-4 py-2 rounded-xl shadow-[0_0_15px_rgba(0,170,255,0.2)]">
+                      <p className="text-[8px] text-primary uppercase font-bold tracking-widest mb-0.5">Room ID</p>
+                      <p className="text-white font-mono font-bold text-sm tracking-widest">{userTeam.currentMatch.roomId || "PENDING"}</p>
+                    </div>
+                    <div className="bg-slate-900 border border-primary/40 px-4 py-2 rounded-xl shadow-[0_0_15px_rgba(0,170,255,0.2)]">
+                      <p className="text-[8px] text-primary uppercase font-bold tracking-widest mb-0.5">Password</p>
+                          <p className="text-white font-mono font-bold text-sm tracking-widest">{userTeam.currentMatch.roomPassword || "PENDING"}</p>
                     </div>
                   </div>
-                )}
+                ) : (
+                  /* Other Status Badges */
+                  <>
+                    {/* WINNER Status */}
+                    {tournament.winnerTeam === userTeam._id && (
+                      <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-[0_0_20px_rgba(234,179,8,0.3)] border bg-yellow-500/10 text-yellow-500 border-yellow-500/30 animate-in zoom-in-95 duration-500">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-xl">emoji_events</span>
+                          <span className="text-sm font-bold">Tournament Winner</span>
+                        </div>
+                      </div>
+                    )}
 
-                {/* REJECTED / Reset Status */}
-                {userTeam.status === 'REJECTED' && (
-                  <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-red-500/10 text-red-500 border-red-500/30">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm">error</span>
-                      <span className="text-sm">Registration Rejected</span>
-                    </div>
-                    <button 
-                      onClick={() => {
-                        setUserTeam(null);
-                        setShowModal(true);
-                      }}
-                      className="text-[9px] uppercase font-bold text-sky-400 underline"
-                    >
-                      Resubmit Registration
-                    </button>
-                  </div>
-                )}
+                    {/* RUNNER UP Status */}
+                    {tournament.runnerUpTeam === userTeam._id && (
+                      <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-slate-400/10 text-slate-300 border-slate-400/30">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-sm">military_tech</span>
+                          <span className="text-sm font-bold">Runner Up</span>
+                        </div>
+                      </div>
+                    )}
 
-                {/* PENDING Status */}
-                {userTeam.status === 'PENDING' && (
-                  <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm animate-spin">hourglass_empty</span>
-                      <span className="text-sm">Waiting for Approval</span>
-                    </div>
-                  </div>
-                )}
+                    {/* WAITING_VERIFICATION Status */}
+                    {userTeam.status === 'WAITING_VERIFICATION' && (
+                      <div className="px-6 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-blue-500/10 text-blue-400 border-blue-500/30">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-sm animate-pulse">account_balance_wallet</span>
+                          <span className="text-xs">Payment Verification Pending</span>
+                        </div>
+                      </div>
+                    )}
 
-                {/* APPROVED Status */}
-                {(userTeam.status === 'APPROVED' || demoStatus === 'APPROVED') && !userTeam.batchSN && (
-                  <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-green-500/10 text-green-500 border-green-500/30">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm">verified</span>
-                      <span className="text-sm">Team Approved</span>
-                    </div>
-                  </div>
-                )}
+                    {/* REJECTED / Reset Status */}
+                    {userTeam.status === 'REJECTED' && (
+                      <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-red-500/10 text-red-500 border-red-500/30">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-sm">error</span>
+                          <span className="text-sm">Registration Rejected</span>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            setUserTeam(null);
+                            setShowModal(true);
+                          }}
+                          className="text-[9px] uppercase font-bold text-sky-400 underline"
+                        >
+                          Resubmit Registration
+                        </button>
+                      </div>
+                    )}
 
-                {/* DEMO SPECIFIC STATUSES */}
-                {isDemo && demoStatus === 'PROBLEM' && (
-                  <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-amber-500/10 text-amber-500 border-amber-500/30">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm">warning</span>
-                      <span className="text-sm">Waiting for a problem</span>
-                    </div>
-                  </div>
-                )}
+                    {/* PENDING Status */}
+                    {userTeam.status === 'PENDING' && (
+                      <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-sm animate-spin">hourglass_empty</span>
+                          <span className="text-sm">Waiting for Approval</span>
+                        </div>
+                      </div>
+                    )}
 
-                {isDemo && demoStatus === 'BADGE' && (
-                  <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-purple-500/10 text-purple-500 border-purple-500/30">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm">stars</span>
-                      <span className="text-sm">Waiting for badge</span>
-                    </div>
-                  </div>
-                )}
+                    {/* APPROVED Status Logic */}
+                    {(userTeam.status === 'APPROVED' || demoStatus === 'APPROVED') && (
+                      <>
+                        {!userTeam.batchSN ? (
+                          // CASE: Approved but NOT assigned to a batch (On Hold or Eliminated)
+                          <div className={`px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border ${
+                            tournament.status === 'LIVE' ? 'bg-red-500/10 text-red-500 border-red-500/30' : 'bg-amber-500/10 text-amber-500 border-amber-500/30'
+                          }`}>
+                            <div className="flex items-center gap-2 text-center">
+                              <span className="material-symbols-outlined text-sm">
+                                {tournament.status === 'LIVE' ? 'cancel' : 'pause_circle'}
+                              </span>
+                              <span className="text-xs md:text-sm">
+                                {tournament.status === 'LIVE' 
+                                  ? (
+                                    <div className="flex flex-col items-center gap-3 w-full">
+                                      <p className="text-xs md:text-sm text-center">Tournament Started! Not assigned to any batch. Team eliminated. Refund will be processed.</p>
+                                      
+                                      {/* REFUND WORKFLOW */}
+                                      {userTeam.refundStatus === 'none' && (
+                                        <div className="flex flex-col gap-2 w-full max-w-xs animate-in slide-in-from-top duration-300">
+                                          <input 
+                                            type="text" 
+                                            id="refund-upi"
+                                            placeholder="Enter UPI ID for Refund"
+                                            className="bg-black/40 border border-white/10 rounded px-3 py-1.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-red-500/50"
+                                          />
+                                          <button 
+                                            onClick={async () => {
+                                              const upi = (document.getElementById('refund-upi') as HTMLInputElement).value;
+                                              if (!upi) return toast.error("Please enter your UPI ID");
+                                              try {
+                                                const { updateRefundUPI } = await import('@/api/api');
+                                                await updateRefundUPI(tournament._id, upi);
+                                                toast.success("UPI Submitted successfully!");
+                                                fetchData();
+                                              } catch (err) {
+                                                toast.error("Failed to submit UPI");
+                                              }
+                                            }}
+                                            className="bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold py-1.5 rounded uppercase tracking-widest transition-all"
+                                          >
+                                            Submit UPI ID
+                                          </button>
+                                        </div>
+                                      )}
 
-                {/* Batch Assigned */}
-                {userTeam.batchSN && (
-                  <div className={`px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border ${
-                    userTeam.isEliminated ? 'bg-red-500/10 text-red-500 border-red-500/30' : 'bg-green-500/10 text-green-500 border-green-500/30'
-                  }`}>
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="material-symbols-outlined text-sm">{userTeam.isEliminated ? 'cancel' : 'task_alt'}</span>
-                      <span>{userTeam.isEliminated ? 'Eliminated' : `Registered - ${userTeam.batchSN}`}</span>
-                    </div>
-                  </div>
+                                      {userTeam.refundStatus === 'submitted' && (
+                                        <div className="bg-white/5 border border-white/5 px-4 py-2 rounded-lg flex flex-col items-center gap-1">
+                                          <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-sm text-amber-500">pending</span>
+                                            <p className="text-[10px] text-amber-500 font-bold uppercase tracking-widest">Refund Pending</p>
+                                          </div>
+                                          <p className="text-[9px] text-slate-400">UPI: {userTeam.refundUPI}</p>
+                                        </div>
+                                      )}
+
+                                      {userTeam.refundStatus === 'completed' && (
+                                        <div className="bg-green-500/10 border border-green-500/20 px-4 py-2 rounded-lg flex flex-col items-center gap-1">
+                                          <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-sm text-green-500">check_circle</span>
+                                            <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest">Refund Processed</p>
+                                          </div>
+                                          <p className="text-[9px] text-slate-400 font-mono">UTR: {userTeam.refundUTR}</p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  ) 
+                                  : userTeam.batchSN
+                                    ? `Success! Assigned to Batch ${userTeam.batchSN}. Wait for tournament start.` 
+                                    : `Approved! On hold for next batch update. Waiting for ${teamsNeededCount} more teams.`}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          // CASE: Approved and HAS a batch
+                          <>
+                            {tournament.status !== 'LIVE' ? (
+                              // Tournament not live yet - show "Assigned to Batch"
+                              <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-green-500/10 text-green-500 border-green-500/30">
+                                <div className="flex items-center gap-2 text-center">
+                                  <span className="material-symbols-outlined text-sm">verified</span>
+                                  <span className="text-xs md:text-sm">Paid! Assigned to {userTeam.batchSN}. Wait until tournament start.</span>
+                                </div>
+                              </div>
+                            ) : (
+                              // Tournament is LIVE - show Match/Elimination/Qualification status
+                              tournament.winnerTeam !== userTeam._id && tournament.runnerUpTeam !== userTeam._id && (
+                                <div className={`px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border ${
+                                  userTeam.isEliminated ? 'bg-red-500/10 text-red-500 border-red-500/30' : 
+                                  !userTeam.currentMatch ? 'bg-green-500/10 text-green-400 border-green-500/30' :
+                                  'bg-amber-500/10 text-amber-500 border-amber-500/30'
+                                }`}>
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <span className="material-symbols-outlined text-sm">
+                                      {userTeam.isEliminated ? 'cancel' : !userTeam.currentMatch ? 'military_tech' : 'notification_important'}
+                                    </span>
+                                    <span className="text-center">
+                                      {userTeam.isEliminated ? 'Eliminated' : 
+                                       !userTeam.currentMatch ? 'Qualified! Wait for next round wait for update' :
+                                       (userTeam.currentMatch?.isFinal ? 'Grand Finals Started. Wait for Room ID & Password' : 
+                                       `Round ${userTeam.currentMatch?.round || ''} Started. Wait for Room ID & Password`)}
+                                    </span>
+                                  </div>
+                                </div>
+                              )
+                            )}
+                          </>
+                        )}
+                      </>
+                    )}
+
+                    {/* DEMO SPECIFIC STATUSES (Problem/Badge) */}
+                    {isDemo && demoStatus === 'PROBLEM' && (
+                      <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-amber-500/10 text-amber-500 border-amber-500/30">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-sm">warning</span>
+                          <span className="text-sm">Waiting for a problem</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {isDemo && demoStatus === 'BADGE' && (
+                      <div className="px-8 py-2 rounded-lg font-h2 flex flex-col items-center gap-0 uppercase tracking-wider shadow-lg border bg-purple-500/10 text-purple-500 border-purple-500/30">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-sm">stars</span>
+                          <span className="text-sm">Waiting for badge</span>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 

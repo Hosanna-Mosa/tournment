@@ -29,6 +29,7 @@ exports.updateSettings = async (req, res) => {
       settings.whatsappNumber = req.body.whatsappNumber || settings.whatsappNumber;
       settings.liveStreamUrl = req.body.liveStreamUrl !== undefined ? req.body.liveStreamUrl : settings.liveStreamUrl;
       settings.howToRegisterUrl = req.body.howToRegisterUrl !== undefined ? req.body.howToRegisterUrl : settings.howToRegisterUrl;
+      settings.rules = req.body.rules !== undefined ? req.body.rules : settings.rules;
     }
     
     const updatedSettings = await settings.save();

@@ -49,6 +49,8 @@ export const getLeaderboard = () => api.get('/leaderboard');
 // Teams
 export const getMyTeam = (tournamentId: string) => api.get(`/teams/my-team/${tournamentId}`);
 export const updateMyTeam = (tournamentId: string, data: any) => api.put(`/teams/my/${tournamentId}`, data);
+export const updateRefundUPI = (tournamentId: string, refundUPI: string) => api.patch(`/teams/my/refund-upi/${tournamentId}`, { refundUPI });
+export const updateRefundUTR = (teamId: string, refundUTR: string) => api.patch(`/teams/${teamId}/refund-utr`, { refundUTR });
 
 // Reviews
 export const getReviews = () => api.get('/reviews');

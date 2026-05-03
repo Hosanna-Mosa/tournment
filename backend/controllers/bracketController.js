@@ -18,23 +18,34 @@ const generateBracket = async (req, res) => {
       return res.status(404).json({ message: 'Tournament not found' });
     }
 
-    // 2. Fetch ALL approved but UNBRACKETTED teams
+    // 2. Fetch ALL approved teams that HAVE A BATCH SN and are UNBRACKETTED
     const availableTeams = await Team.find({ 
       tournamentId, 
       status: 'APPROVED', 
-      isBracketted: { $ne: true } 
+      isBracketted: { $ne: true },
+      batchSN: { $ne: null, $ne: "" } 
     });
 
     const teamCount = availableTeams.length;
 
     if (teamCount < 2) {
       return res.status(400).json({ 
-        message: `Need at least 2 approved teams to generate a bracket. Currently have ${teamCount}.` 
+        message: `Need at least 2 approved teams with assigned batches to generate a bracket. Currently have ${teamCount}.` 
       });
     }
 
-    // 3. Use utility to generate ONE single unified bracket
-    const result = await generateAutoBracket(tournamentId, availableTeams);
+    // 3. Update tournament status to LIVE
+    tournament.status = 'LIVE';
+    await tournament.save();
+
+    // 4. Use utility to generate ONE single unified bracket
+    // Get list of batches involved for the title
+    const batchList = [...new Set(availableTeams.map(t => t.batchSN))].sort();
+    const customTitle = batchList.length > 1 
+      ? `Unified Bracket (${batchList[0]} - ${batchList[batchList.length - 1]})`
+      : batchList[0];
+
+    const result = await generateAutoBracket(tournamentId, availableTeams, customTitle);
 
     res.status(201).json({
       message: `Successfully generated a single unified bracket for all ${teamCount} approved teams.`,
@@ -97,6 +108,13 @@ const declareWinner = async (req, res) => {
     const match = await Match.findById(matchId);
     if (!match) return res.status(404).json({ message: 'Match not found' });
     if (match.status === 'completed') return res.status(400).json({ message: 'Match already completed' });
+    
+    // EDGE CASE: Prevent declaring winner if room details were never released
+    if (!match.isRoomReleased) {
+      return res.status(400).json({ 
+        message: 'Cannot declare winner: Room details must be released to players before match completion.' 
+      });
+    }
 
     // Validate winner is teamA or teamB
     if (match.teamA.toString() !== winnerId && match.teamB.toString() !== winnerId) {
@@ -111,10 +129,11 @@ const declareWinner = async (req, res) => {
     match.completedAt = Date.now();
     await match.save();
 
-    // Mark the loser as eliminated
-    await Team.findByIdAndUpdate(loserId, { isEliminated: true });
-
+    // Mark the loser as eliminated ONLY if it's not the grand final
     const bracket = await Bracket.findById(match.bracketId);
+    if (match.round !== bracket.totalRounds) {
+      await Team.findByIdAndUpdate(loserId, { isEliminated: true });
+    }
 
     // Check if ALL matches in this round are completed
     const roundMatches = await Match.find({ bracketId: bracket._id, round: match.round });

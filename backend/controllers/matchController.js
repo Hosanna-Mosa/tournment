@@ -54,6 +54,14 @@ const toggleRoomRelease = async (req, res) => {
         return res.status(400).json({ message: 'Cannot release empty Room ID' });
       }
       match.isRoomReleased = release;
+      
+      // Auto-update status if it's currently waiting or ready
+      if (release && match.status === 'waiting') {
+        match.status = 'ready';
+      } else if (!release && match.status === 'ready') {
+        match.status = 'waiting';
+      }
+
       await match.save();
       res.json(match);
     } else {

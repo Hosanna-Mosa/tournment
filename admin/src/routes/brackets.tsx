@@ -61,8 +61,9 @@ function BracketBuilderPage() {
     try {
       await declareWinner(matchId, teamId);
       fetchBrackets();
-    } catch (error) {
-      alert("Action failed");
+    } catch (error: any) {
+      const message = error.response?.data?.message || "Action failed";
+      alert(message);
     }
   };
 

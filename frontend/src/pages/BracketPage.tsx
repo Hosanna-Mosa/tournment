@@ -27,11 +27,22 @@ const BracketPage = () => {
   const navigate = useNavigate();
   const [brackets, setBrackets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | undefined>();
 
   const fetchBracket = async () => {
     try {
       if (!tournamentId) return;
       const { data: result } = await getBracket(tournamentId);
+      
+      // Fetch user profile to get ID for privacy checks
+      const { getProfile } = await import('@/api/api');
+      try {
+        const { data: profile } = await getProfile();
+        setCurrentUserId(profile._id);
+      } catch (err) {
+        // Not logged in or failed
+      }
+
       // Ensure result is always an array of {bracket, matches}
       const dataArray = Array.isArray(result) ? result : (result ? [result] : []);
       setBrackets(dataArray.filter(item => item && item.bracket));
@@ -109,6 +120,7 @@ const BracketPage = () => {
                   <BracketTree 
                     matches={item.matches || []} 
                     totalRounds={item.bracket.totalRounds || 1} 
+                    currentUserId={currentUserId}
                   />
                 </div>
               </div>

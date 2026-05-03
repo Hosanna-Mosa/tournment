@@ -42,6 +42,7 @@ export const toggleRoomRelease = (matchId: string, release: boolean) => api.patc
 export const getTeams = (tournamentId: string) => api.get(`/teams/${tournamentId}`);
 export const getTeamById = (teamId: string) => api.get(`/teams/detail/${teamId}`);
 export const updateTeamStatus = (teamId: string, data: any) => api.patch(`/teams/${teamId}/status`, data);
+export const updateRefundUTR = (teamId: string, refundUTR: string) => api.patch(`/teams/${teamId}/refund-utr`, { refundUTR });
 
 // Leaderboard / Stats
 export const getLeaderboard = () => api.get('/leaderboard');

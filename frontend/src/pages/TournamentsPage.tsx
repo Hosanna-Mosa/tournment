@@ -14,6 +14,8 @@ interface Tournament {
   status: 'UPCOMING' | 'LIVE' | 'COMPLETED';
   imageUrl: string;
   winnerName?: string;
+  startDate?: string;
+  startTime?: string;
 }
 
 const TournamentSkeleton = () => (
@@ -44,7 +46,7 @@ const TournamentsPage = () => {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [filter, setFilter] = useState<'UPCOMING' | 'LIVE'>('UPCOMING');
+  const [filter, setFilter] = useState<'UPCOMING' | 'LIVE' | 'COMPLETED'>('UPCOMING');
   const [settings, setSettings] = useState<any>(null);
 
   useEffect(() => {
@@ -106,7 +108,7 @@ const TournamentsPage = () => {
       </div>
 
       <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-8 md:mb-12">
-        <div className="flex items-center justify-center gap-4 bg-[#0a0e2e]/50 p-2 rounded-2xl border border-white/5 w-full md:w-auto">
+        <div className="flex flex-wrap items-center justify-center gap-4 bg-[#0a0e2e]/50 p-2 rounded-2xl border border-white/5 w-full md:w-auto">
           <button 
             onClick={() => setFilter('UPCOMING')}
             className={`px-8 py-2.5 rounded-xl font-label-caps text-xs tracking-[0.1em] transition-all duration-300 ${
@@ -127,6 +129,16 @@ const TournamentsPage = () => {
           >
             <span className={`w-1.5 h-1.5 rounded-full bg-error ${filter === 'LIVE' ? 'animate-pulse' : ''}`}></span>
             Present / Live
+          </button>
+          <button 
+            onClick={() => setFilter('COMPLETED')}
+            className={`px-8 py-2.5 rounded-xl font-label-caps text-xs tracking-[0.1em] transition-all duration-300 ${
+              filter === 'COMPLETED' 
+                ? "bg-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)]" 
+                : "text-gray-500 hover:text-white"
+            }`}
+          >
+            Completed
           </button>
         </div>
       </div>
@@ -181,6 +193,19 @@ const TournamentsPage = () => {
                         {tournament.status === 'COMPLETED' ? `${tournament.totalSlots} Players` : `₹${tournament.entryFee}`}
                       </span>
                     </div>
+
+                    {tournament.status === 'UPCOMING' && (
+                      <div className="flex justify-between items-center bg-white/5 p-2 rounded border border-white/5">
+                         <div className="flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[14px] text-primary">calendar_month</span>
+                            <span className="text-[10px] text-white font-mono uppercase">{tournament.startDate || 'TBA'}</span>
+                         </div>
+                         <div className="flex items-center gap-1.5 border-l border-white/10 pl-2">
+                            <span className="material-symbols-outlined text-[14px] text-primary">schedule</span>
+                            <span className="text-[10px] text-white font-mono uppercase">{tournament.startTime || 'TBA'}</span>
+                         </div>
+                      </div>
+                    )}
 
                     {tournament.status !== 'COMPLETED' && (
                       <div className="space-y-1.5 md:space-y-2">

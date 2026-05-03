@@ -49,6 +49,17 @@ const teamSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    refundUPI: {
+      type: String,
+    },
+    refundUTR: {
+      type: String,
+    },
+    refundStatus: {
+      type: String,
+      enum: ['none', 'submitted', 'completed'],
+      default: 'none',
+    },
   },
   { timestamps: true }
 );

@@ -47,6 +47,8 @@ const createTournament = async (req, res) => {
       entryFee,
       rules,
       schedule,
+      startDate,
+      startTime
     } = req.body;
 
     const tournament = new Tournament({
@@ -57,6 +59,8 @@ const createTournament = async (req, res) => {
       entryFee,
       rules,
       schedule,
+      startDate,
+      startTime
     });
 
     const createdTournament = await tournament.save();
@@ -81,6 +85,8 @@ const updateTournament = async (req, res) => {
       status,
       rules,
       schedule,
+      startDate,
+      startTime,
       winnerName
     } = req.body;
 
@@ -118,6 +124,8 @@ const updateTournament = async (req, res) => {
       tournament.status = status || tournament.status;
       tournament.rules = rules || tournament.rules;
       tournament.schedule = schedule || tournament.schedule;
+      tournament.startDate = startDate || tournament.startDate;
+      tournament.startTime = startTime || tournament.startTime;
       tournament.winnerName = winnerName || tournament.winnerName;
 
       const updatedTournament = await tournament.save();
@@ -196,12 +204,12 @@ const registerForTournament = async (req, res, next) => {
 
       await team.save();
 
-      // 3. Update tournament slot count
-      tournament.filledSlots += 1;
-      await tournament.save();
+      // 3. Increment slot count ONLY when approved (handled in teamController)
+      // tournament.filledSlots += 1;
+      // await tournament.save();
 
       res.status(201).json({ 
-        message: 'Registration submitted! Please wait for admin to verify your payment.',
+        message: 'Registration submitted! Please wait for admin to verify your payment and then wait for room ID password.',
         status: 'WAITING_VERIFICATION'
       });
     } else {
