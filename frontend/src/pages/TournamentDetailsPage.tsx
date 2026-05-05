@@ -292,10 +292,7 @@ const TournamentDetailsPage = () => {
   const rulesToShow = (settings?.rules && settings.rules.length > 0) ? settings.rules : defaultRules;
   const displayedRules = showAllRules ? rulesToShow : rulesToShow.slice(0, 4);
 
-  // Hold System Logic: Calculate progress to next batch of 8
-  const approvedTeamsCount = tournament.filledSlots || 0;
-  const currentBatchProgress = approvedTeamsCount % 8;
-  const teamsNeededCount = currentBatchProgress === 0 ? 0 : 8 - currentBatchProgress;
+
 
   return (
     <main className="min-h-screen pb-32 bg-[#020617]">
@@ -450,29 +447,7 @@ const TournamentDetailsPage = () => {
                 </div>
               )}
             </div>
-            <div className="glass-card p-5 md:p-6 rounded-xl border border-white/5 bg-white/[0.02]">
-              <h3 className="font-h3 text-white mb-3 md:mb-4 flex items-center gap-2 uppercase tracking-widest text-xs md:text-sm">
-                <span className="material-symbols-outlined text-primary text-xl">stadium</span> REGISTRATION PROGRESS
-              </h3>
-              <div>
-                <div className="flex justify-between text-xs md:text-sm mb-2 md:mb-3">
-                  <span className="text-slate-400 font-space">{tournament.filledSlots} Teams Registered</span>
-                </div>
-                <div className="h-2.5 md:h-3 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-primary to-sky-400 shadow-[0_0_15px_rgba(0,170,255,0.5)] transition-all duration-1000" 
-                    style={{ 
-                      width: `${
-                        tournament.filledSlots > 0 && tournament.filledSlots % 8 === 0 
-                          ? 100 
-                          : ((tournament.filledSlots % 8) / 8) * 100
-                      }%` 
-                    }}
-                  ></div>
-                </div>
-                <p className="text-[9px] md:text-[10px] text-slate-500 mt-3 md:mt-4 italic">Next batch starts at 8, 16, or 24 teams.</p>
-              </div>
-            </div>
+
           </div>
         </div>
 
@@ -859,7 +834,7 @@ const TournamentDetailsPage = () => {
                                   ) 
                                   : userTeam.batchSN
                                     ? `Success! Assigned to Batch ${userTeam.batchSN}. Wait for tournament start.` 
-                                    : `Approved! On hold for next batch update. Waiting for ${teamsNeededCount} more teams.`}
+                                    : `Approved! On hold for next batch update. Please wait for the tournament to start.`}
                               </span>
                             </div>
                           </div>
