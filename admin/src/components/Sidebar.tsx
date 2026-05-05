@@ -29,7 +29,7 @@ export default function Sidebar() {
         </div>
         <div>
           <h1 className="font-black text-2xl bg-gradient-to-r from-sky-400 to-blue-600 bg-clip-text text-transparent leading-none font-space">
-            MH GAMING
+            TRIOZEN TECH
           </h1>
           <p className="font-space font-medium uppercase text-[10px] tracking-widest text-sky-400/60 mt-1">
             COMMAND CENTER

@@ -69,11 +69,11 @@ const TermsAndConditions = () => {
       {/* Header Section */}
       <div className="pt-12 pb-8 px-6 flex flex-col items-center text-center border-b border-[#00aaff]/20">
         <div className="relative mb-6">
-          <img src="/Triozen-logo-removebg-preview.png" alt="MH GAMING TELUGU" className="w-24 md:w-32 z-10 relative" />
+          <img src="/Triozen-logo-removebg-preview.png" alt="TRIOZEN TECH" className="w-24 md:w-32 z-10 relative" />
           <div className="absolute inset-0 bg-[#00aaff]/20 blur-2xl rounded-full -z-0"></div>
         </div>
         <h1 className="font-rajdhani text-3xl md:text-5xl font-bold text-[#00aaff] uppercase tracking-tighter mb-2">
-          Terms & Conditions — MH GAMING TELUGU
+          Terms & Conditions — TRIOZEN TECH
         </h1>
         <p className="text-slate-500 text-sm md:text-base font-medium">Last Updated: May 2025</p>
         
@@ -143,7 +143,7 @@ const TermsAndConditions = () => {
               <h2 className="font-rajdhani text-2xl md:text-3xl font-bold text-[#00aaff] mb-6 uppercase tracking-wider">1. ACCEPTANCE OF TERMS</h2>
               <div className="space-y-4 text-[15px] leading-[1.8] text-[#ccd6f6]">
                 <p>
-                  By accessing or using the MH GAMING TELUGU tournament platform ("Platform"), registering for any tournament, or participating in any matches, you ("User", "Player", "you") agree to be bound by these Terms and Conditions ("Terms"). These Terms form a legally binding agreement between you and MH GAMING TELUGU.
+                  By accessing or using the TRIOZEN TECH tournament platform ("Platform"), registering for any tournament, or participating in any matches, you ("User", "Player", "you") agree to be bound by these Terms and Conditions ("Terms"). These Terms form a legally binding agreement between you and TRIOZEN TECH.
                 </p>
                 <p className="bg-primary/10 border-l-4 border-[#00aaff] p-4 text-sm italic">
                   If you do not agree to these Terms, you must immediately stop using the Platform.
@@ -271,7 +271,7 @@ const TermsAndConditions = () => {
             <section id="content">
               <h2 className="font-rajdhani text-2xl md:text-3xl font-bold text-[#00aaff] mb-6 uppercase tracking-wider">8. CONTENT & LIVE STREAMING</h2>
               <div className="space-y-4 text-[15px] leading-[1.8] text-[#ccd6f6]">
-                <p>MH GAMING TELUGU reserves the right to live stream all tournament matches on YouTube. By registering, you grant us permission to feature your team name, player names, and in-game footage in live streams and promotional content.</p>
+                <p>TRIOZEN TECH reserves the right to live stream all tournament matches on YouTube. By registering, you grant us permission to feature your team name, player names, and in-game footage in live streams and promotional content.</p>
               </div>
               <div className="mt-8 h-[1px] w-full bg-gradient-to-r from-transparent via-[#00aaff]/30 to-transparent"></div>
             </section>
@@ -287,7 +287,7 @@ const TermsAndConditions = () => {
             <section id="ip">
               <h2 className="font-rajdhani text-2xl md:text-3xl font-bold text-[#00aaff] mb-6 uppercase tracking-wider">10. INTELLECTUAL PROPERTY</h2>
               <div className="space-y-4 text-[15px] leading-[1.8] text-[#ccd6f6]">
-                <p>"MH GAMING TELUGU" name and branding are owned by us. Free Fire is a registered trademark of Garena \u2014 we are an independent platform.</p>
+                <p>"TRIOZEN TECH" name and branding are owned by us. Free Fire is a registered trademark of Garena \u2014 we are an independent platform.</p>
               </div>
               <div className="mt-8 h-[1px] w-full bg-gradient-to-r from-transparent via-[#00aaff]/30 to-transparent"></div>
             </section>
@@ -303,11 +303,11 @@ const TermsAndConditions = () => {
             <section id="grievance">
               <h2 className="font-rajdhani text-2xl md:text-3xl font-bold text-[#00aaff] mb-6 uppercase tracking-wider">16. CONTACT & GRIEVANCE OFFICER</h2>
               <div className="bg-[#0d1535] p-8 rounded-2xl border border-[#00aaff]/20 space-y-4 shadow-2xl">
-                <p className="text-xl font-rajdhani font-bold text-white uppercase tracking-widest">MH GAMING TELUGU</p>
+                <p className="text-xl font-rajdhani font-bold text-white uppercase tracking-widest">TRIOZEN TECH</p>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-[#00aaff]">mail</span>
-                    <span>legal@mhgamingtelugu.com</span>
+                    <span>triozen.tech@gmail.com</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-[#00aaff]">location_on</span>
@@ -328,7 +328,7 @@ const TermsAndConditions = () => {
               <Link to="/terms-and-conditions" className="text-[#00aaff]">Terms & Conditions</Link>
             </div>
             <div className="space-y-2">
-              <p className="text-slate-600 text-[10px] uppercase tracking-widest">MH GAMING TELUGU \u00a9 2025. ALL RIGHTS RESERVED.</p>
+              <p className="text-slate-600 text-[10px] uppercase tracking-widest">TRIOZEN TECH \u00a9 2025. ALL RIGHTS RESERVED.</p>
               <p className="text-slate-700 text-[9px] uppercase tracking-tighter">THIS PLATFORM IS NOT AFFILIATED WITH GARENA OR FREE FIRE.</p>
             </div>
           </div>
