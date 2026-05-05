@@ -91,7 +91,7 @@ const Header = () => {
           </div>
 
           <Link to="/" className="text-[11px] xs:text-sm sm:text-lg md:text-2xl font-black text-white italic tracking-tighter uppercase font-h1 whitespace-nowrap">
-            MH GAMING TELUGU
+            TRIOZEN TECH
           </Link>
         </div>
 

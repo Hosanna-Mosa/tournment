@@ -40,7 +40,7 @@ export default function LoginPage() {
             </div>
           </div>
           <h1 className="font-space text-[32px] font-bold text-on-surface tracking-widest uppercase mb-2">
-            MH GAMING TELUGU
+            TRIOZEN TECH
           </h1>
           <div className="flex items-center gap-4 w-full justify-center">
             <div className="h-[1px] flex-grow bg-gradient-to-r from-transparent to-primary/40"></div>

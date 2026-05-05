@@ -55,11 +55,11 @@ const HomePage = () => {
           <img
             className="w-full h-full object-cover"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5WaBAW30T_2C0jfuqoH7-Nl3dxr4UrC1LtFJyzpQ0Bqb65y_mxETGhRjqih4kKVZJQcSmklnWpEo9P2N8dFEm8MQbXd-IPPN6mUgnnCe92dSV7HXRy82F8RZjJwzggVC4pjOY3svNMd-7ibaNs3dJcB0RLCt0GzYFXf-R4EE6Bjx05sE5BVR3nLKKw5cBNn3-4IsWAjPetzj8pqGatmg4blPhlQBROZSZfwvIW4seKqnP52IOJ9WyoGtU1fCjeDbiiGKyfAQIPnxY"
-            alt="MH Gaming hero"
+            alt="Triozen Tech hero"
           />
         </div>
         <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-          <h1 className="font-h1 text-white mb-4 text-3xl sm:text-5xl md:text-8xl leading-tight">MH GAMING TELUGU</h1>
+          <h1 className="font-h1 text-white mb-4 text-3xl sm:text-5xl md:text-8xl leading-tight">TRIOZEN TECH</h1>
           <p className="font-h3 text-primary-container mb-8 uppercase tracking-[0.2em] text-[10px] sm:text-xs md:text-base">
             Register. Compete. Win. Watch LIVE.
           </p>
@@ -141,7 +141,7 @@ const HomePage = () => {
 
       <section className="py-16 md:py-24 px-4 md:px-6 bg-surface-container-low">
         <div className="max-w-7xl mx-auto text-center mb-12 md:mb-16">
-          <h2 className="font-h2 text-white mb-4 text-2xl md:text-4xl uppercase tracking-widest">WHY JOIN MH GAMING?</h2>
+          <h2 className="font-h2 text-white mb-4 text-2xl md:text-4xl uppercase tracking-widest">WHY JOIN TRIOZEN TECH?</h2>
           <p className="text-on-surface-variant max-w-2xl mx-auto text-sm md:text-base px-4">
             Experience the most professional gaming platform with instant payouts and daily live action.
           </p>

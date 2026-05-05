@@ -3,7 +3,7 @@ export default function TopBar({ title }: { title?: string }) {
     <header className="fixed top-0 left-[280px] w-[calc(100%-280px)] h-16 bg-slate-950/80 backdrop-blur-xl border-b border-sky-500/30 flex justify-between items-center px-6 z-40 shadow-[0_4px_20px_rgba(0,170,255,0.1)]">
       <div className="flex items-center gap-4">
         <span className="text-xl font-black text-sky-400 tracking-wider uppercase font-space">
-          {title || "MH GAMING TELUGU"}
+          {title || "TRIOZEN TECH"}
         </span>
       </div>
       <div className="flex items-center gap-6">

@@ -65,11 +65,11 @@ const PrivacyPolicy = () => {
       {/* Header Section */}
       <div className="pt-12 pb-8 px-6 flex flex-col items-center text-center border-b border-[#00aaff]/20">
         <div className="relative mb-6">
-          <img src="/Triozen-logo-removebg-preview.png" alt="MH GAMING TELUGU" className="w-24 md:w-32 z-10 relative" />
+          <img src="/Triozen-logo-removebg-preview.png" alt="TRIOZEN TECH" className="w-24 md:w-32 z-10 relative" />
           <div className="absolute inset-0 bg-[#00aaff]/20 blur-2xl rounded-full -z-0"></div>
         </div>
         <h1 className="font-rajdhani text-3xl md:text-5xl font-bold text-[#00aaff] uppercase tracking-tighter mb-2">
-          Privacy Policy — MH GAMING TELUGU
+          Privacy Policy — TRIOZEN TECH
         </h1>
         <p className="text-slate-500 text-sm md:text-base font-medium">Last Updated: May 2025</p>
         
@@ -139,7 +139,7 @@ const PrivacyPolicy = () => {
               <h2 className="font-rajdhani text-2xl md:text-3xl font-bold text-[#00aaff] mb-6 uppercase tracking-wider">1. INTRODUCTION</h2>
               <div className="space-y-4 text-[15px] leading-[1.8] text-[#ccd6f6]">
                 <p>
-                  MH GAMING TELUGU ("we", "our", "us") operates the MH GAMING TELUGU tournament platform (the "Platform") accessible at our official website. This Privacy Policy explains how we collect, use, disclose, and protect your personal information when you use our Platform to register for and participate in Free Fire gaming tournaments.
+                  TRIOZEN TECH ("we", "our", "us") operates the TRIOZEN TECH tournament platform (the "Platform") accessible at our official website. This Privacy Policy explains how we collect, use, disclose, and protect your personal information when you use our Platform to register for and participate in Free Fire gaming tournaments.
                 </p>
                 <p>
                   By using our Platform, you agree to the collection and use of information in accordance with this policy. If you do not agree, please do not use our Platform.
@@ -373,7 +373,7 @@ const PrivacyPolicy = () => {
             <section id="contact">
               <h2 className="font-rajdhani text-2xl md:text-3xl font-bold text-[#00aaff] mb-6 uppercase tracking-wider">12. CONTACT US</h2>
               <div className="bg-[#0d1535] p-8 rounded-2xl border border-[#00aaff]/20 space-y-4 shadow-2xl">
-                <p className="text-xl font-rajdhani font-bold text-white uppercase tracking-widest">MH GAMING TELUGU</p>
+                <p className="text-xl font-rajdhani font-bold text-white uppercase tracking-widest">TRIOZEN TECH</p>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-[#00aaff]">mail</span>
@@ -381,7 +381,7 @@ const PrivacyPolicy = () => {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-[#00aaff]">smart_display</span>
-                    <span>YouTube: MH GAMING TELUGU</span>
+                    <span>YouTube: TRIOZEN TECH</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-[#00aaff]">phone_iphone</span>
@@ -402,7 +402,7 @@ const PrivacyPolicy = () => {
               <Link to="/terms-and-conditions" className="hover:text-[#00aaff] transition-colors">Terms & Conditions</Link>
             </div>
             <div className="space-y-2">
-              <p className="text-slate-600 text-[10px] uppercase tracking-widest">MH GAMING TELUGU \u00a9 2025. ALL RIGHTS RESERVED.</p>
+              <p className="text-slate-600 text-[10px] uppercase tracking-widest">TRIOZEN TECH © 2025. ALL RIGHTS RESERVED.</p>
               <p className="text-slate-700 text-[9px] uppercase tracking-tighter">THIS PLATFORM IS NOT AFFILIATED WITH GARENA OR FREE FIRE.</p>
             </div>
           </div>
