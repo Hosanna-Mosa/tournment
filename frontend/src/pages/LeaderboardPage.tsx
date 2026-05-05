@@ -59,12 +59,7 @@ const LeaderboardPage = () => {
             GLOBAL PRO RANKINGS
           </p>
         </div>
-        <div className="flex gap-4 w-full md:w-auto">
-          <div className="glass-card p-3 md:p-4 rounded-xl text-center flex-1 md:min-w-[120px] border border-white/5">
-            <p className="text-[8px] md:text-[10px] font-label-caps text-outline uppercase tracking-wider mb-1">Total Players</p>
-            <p className="text-xl md:text-2xl font-bold text-white">{players.length}</p>
-          </div>
-        </div>
+
       </div>
 
       {/* Podium */}

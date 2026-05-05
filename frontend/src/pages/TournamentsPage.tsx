@@ -187,10 +187,10 @@ const TournamentsPage = () => {
                     
                     <div className="flex justify-between text-xs md:text-sm">
                       <span className="text-outline uppercase tracking-wider text-[10px] md:text-[11px]">
-                        {tournament.status === 'COMPLETED' ? 'Total Players' : 'Entry Fee'}
+                        Entry Fee
                       </span>
                       <span className="text-white">
-                        {tournament.status === 'COMPLETED' ? `${tournament.totalSlots} Players` : `₹${tournament.entryFee}`}
+                        ₹{tournament.entryFee}
                       </span>
                     </div>
 
@@ -207,20 +207,7 @@ const TournamentsPage = () => {
                       </div>
                     )}
 
-                    {tournament.status !== 'COMPLETED' && (
-                      <div className="space-y-1.5 md:space-y-2">
-                        <div className="flex justify-between text-[9px] md:text-[11px] font-label-caps text-outline uppercase tracking-tighter">
-                          <span>Teams Registered</span>
-                          <span>{tournament.filledSlots} Teams</span>
-                        </div>
-                        <div className="h-1.5 md:h-2 w-full bg-surface-container rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-primary-container transition-all duration-500 shadow-[0_0_8px_rgba(0,170,255,0.5)]" 
-                            style={{ width: `${Math.min((tournament.filledSlots / (tournament.totalSlots || 48)) * 100, 100)}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    )}
+
                   </div>
 
                   <button 
